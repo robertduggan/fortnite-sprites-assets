@@ -887,7 +887,7 @@
       "level": 0
     },
     "304": {
-      "owned": false,
+      "owned": true,
       "level": 0
     },
     "305": {
@@ -951,102 +951,6 @@
       "level": 0
     },
     "320": {
-      "owned": false,
-      "level": 0
-    },
-    "321": {
-      "owned": false,
-      "level": 0
-    },
-    "322": {
-      "owned": false,
-      "level": 0
-    },
-    "323": {
-      "owned": false,
-      "level": 0
-    },
-    "324": {
-      "owned": false,
-      "level": 0
-    },
-    "325": {
-      "owned": false,
-      "level": 0
-    },
-    "326": {
-      "owned": false,
-      "level": 0
-    },
-    "327": {
-      "owned": false,
-      "level": 0
-    },
-    "328": {
-      "owned": false,
-      "level": 0
-    },
-    "329": {
-      "owned": false,
-      "level": 0
-    },
-    "330": {
-      "owned": false,
-      "level": 0
-    },
-    "331": {
-      "owned": false,
-      "level": 0
-    },
-    "332": {
-      "owned": false,
-      "level": 0
-    },
-    "333": {
-      "owned": false,
-      "level": 0
-    },
-    "334": {
-      "owned": false,
-      "level": 0
-    },
-    "335": {
-      "owned": false,
-      "level": 0
-    },
-    "336": {
-      "owned": false,
-      "level": 0
-    },
-    "337": {
-      "owned": false,
-      "level": 0
-    },
-    "338": {
-      "owned": false,
-      "level": 0
-    },
-    "339": {
-      "owned": false,
-      "level": 0
-    },
-    "340": {
-      "owned": false,
-      "level": 0
-    },
-    "341": {
-      "owned": false,
-      "level": 0
-    },
-    "342": {
-      "owned": false,
-      "level": 0
-    },
-    "343": {
-      "owned": false,
-      "level": 0
-    },
-    "344": {
       "owned": false,
       "level": 0
     }
