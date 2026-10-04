@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fortnite Sprite Tracker</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+:root{
+  --bg:#1a1b1e;--surface:#25262b;--surface2:#2c2d33;
+  --border:#373a40;--border2:#454950;
+  --text:#c9cdd3;--text2:#8b949e;--text3:#6e7681;
+  --accent:#5865f2;--glow:rgba(88,101,242,.3);
+  --gold:#f0b132;--tm:#e67e22;--tm-glow:rgba(230,126,34,.3);
+  --c-rare:#4a90d9;--c-epic:#b263f5;--c-legendary:#f0a132;
+  --c-mythic:#ff6b35;--c-special:#43b89c;
+  --r:10px;--rl:14px;--t:.18s ease;
+  --profile:#5865f2;--profile-dim:rgba(88,101,242,.3);
+}
+/* Profile themes — swap the active accent/header wash per user.
+   Rob = emerald, Tro = sapphire (change --profile/--profile-dim here to retheme). */
+body[data-profile="rob"]{--profile:#2bb673;--profile-dim:rgba(43,182,115,.28);}
+body[data-profile="tro"]{--profile:#3b82d4;--profile-dim:rgba(59,130,212,.28);}
+body[data-profile="rob"] header{background:linear-gradient(180deg,rgba(43,182,115,.10),var(--surface) 70%);}
+body[data-profile="tro"] header{background:linear-gradient(180deg,rgba(59,130,212,.10),var(--surface) 70%);}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;min-height:100vh}
+/* PROFILE SWITCHER */
+.profile-switch{display:inline-flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:999px;padding:3px;gap:2px}
+.profile-btn{padding:5px 13px;border-radius:999px;border:none;background:transparent;color:var(--text2);font-family:inherit;font-size:.76rem;font-weight:700;cursor:pointer;transition:all var(--t)}
+.profile-btn.on{background:var(--profile);color:#fff}
+.profile-btn:not(.on):hover{color:#fff}
+.sync-status{font-size:.68rem;font-weight:600;color:var(--text3);white-space:nowrap;display:flex;align-items:center;gap:4px}
+.sync-status.sync-saved::before{content:'●';color:var(--c-special)}
+.sync-status.sync-saving::before,.sync-status.sync-pending::before{content:'●';color:var(--gold)}
+.sync-status.sync-error::before{content:'●';color:#fc8181}
+.sync-status.sync-no-token::before,.sync-status.sync-offline::before{content:'●';color:var(--text3)}
+/* GITHUB SYNC SETTINGS */
+.gh-box{margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.gh-row{display:flex;gap:7px;margin-top:8px}
+.gh-row input[type="password"],.gh-row input[type="text"]{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:.78rem;padding:7px 10px}
+.gh-note{font-size:.72rem;color:var(--text3);margin-top:7px;line-height:1.45}
+.gh-note a{color:var(--profile)}
+.gh-status-line{font-size:.76rem;font-weight:600;margin-top:8px}
+/* HEADER */
+header{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200}
+.hi{max-width:1400px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,#5865f2,#b263f5);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.logo-text{font-size:1.05rem;font-weight:800;color:#fff;letter-spacing:-.3px}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:var(--surface2);border:1px solid var(--border);border-radius:999px;padding:4px 12px;font-size:.76rem;font-weight:600;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.chip .v{color:#fff;font-weight:700}
+.chip .vg{color:var(--gold);font-weight:700}
+.chip .vtm{color:var(--tm);font-weight:700}
+.hact{margin-left:auto;display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.ver{font-size:.66rem;font-weight:700;color:var(--text3);background:var(--surface2);border:1px solid var(--border);border-radius:999px;padding:3px 9px;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:inherit;font-size:.76rem;font-weight:600;cursor:pointer;transition:all var(--t);white-space:nowrap}
+.btn:hover{background:var(--border);color:#fff}
+.btn-a{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-a:hover{background:#4752c4}
+.btn-d{border-color:#e53e3e44;color:#fc8181}
+.btn-d:hover{background:#e53e3e22;border-color:#e53e3e88}
+.layout-toggle{display:inline-flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:2px;gap:2px}
+.layout-toggle .pill{padding:4px 9px;font-size:.7rem}
+.layout-toggle .pill.on{background:var(--accent);color:#fff}
+/* Dynamic layout: remove the centered 1400px content constraint so the tracker
+   uses the full viewport width. This increases packing capacity, especially in
+   the adaptive Missing view, while Classic retains the original layout. */
+body.dynamic-mode .hi,
+body.dynamic-mode .pw,
+body.dynamic-mode .tab-bar,
+body.dynamic-mode .ctrl,
+body.dynamic-mode main{max-width:none;margin-left:0;margin-right:0}
+body.dynamic-mode .hi,
+body.dynamic-mode .pw,
+body.dynamic-mode .tab-bar,
+body.dynamic-mode .ctrl,
+body.dynamic-mode main{padding-left:0;padding-right:0}
+.btn-g{border-color:rgba(67,184,156,.4);color:var(--c-special)}
+.btn-g:hover{background:rgba(67,184,156,.1)}
+.pw{padding:0 24px 10px;max-width:1400px;margin:0 auto}
+.pt{height:3px;background:var(--border);border-radius:4px;overflow:hidden}
+.pf{height:100%;background:linear-gradient(90deg,var(--accent),var(--c-special));border-radius:4px;transition:width .5s ease}
+/* SEASON TABS */
+.tab-bar{max-width:1400px;margin:0 auto;padding:0 24px;display:flex;gap:0;border-bottom:2px solid var(--border)}
+.tab-btn{padding:11px 22px;font-family:inherit;font-size:.85rem;font-weight:700;color:var(--text2);background:transparent;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all var(--t);letter-spacing:.3px}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:#fff;border-bottom-color:var(--accent)}
+/* CONTROLS */
+.ctrl{max-width:1400px;margin:0 auto;padding:14px 24px 12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.cg{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.cl{font-size:.68rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.pg{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:2px;gap:1px}
+.pill{padding:4px 11px;border-radius:999px;border:none;background:transparent;color:var(--text2);font-family:inherit;font-size:.72rem;font-weight:600;cursor:pointer;transition:all var(--t);white-space:nowrap}
+.pill:hover{color:var(--text)}
+.pill.on{background:var(--accent);color:#fff}
+.pill.on-tm{background:var(--tm);color:#fff}
+select{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:.78rem;font-weight:600;padding:5px 9px;cursor:pointer;outline:none}
+select:focus{border-color:var(--accent)}
+.sw{position:relative;margin-left:auto}
+.si{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+.si2{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:.78rem;padding:6px 11px 6px 30px;width:180px;outline:none;transition:border-color var(--t),width var(--t)}
+.si2:focus{border-color:var(--accent);width:220px}
+.si2::placeholder{color:var(--text3)}
+.sc{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:.8rem;line-height:1;padding:3px 5px;border-radius:5px;display:none}
+.sc:hover{color:var(--text);background:var(--surface2)}
+.sw.has-val .si2{padding-right:24px}
+.sw.has-val .sc{display:flex;align-items:center;justify-content:center}
+/* MAIN CONTENT */
+main{max-width:1400px;margin:0 auto;padding:0 24px 60px}
+/* GROUP LAYOUT (v1.5.x style) */
+.row-wrap{display:flex;gap:16px;margin-bottom:16px;align-items:flex-start}
+.tg{flex-shrink:0;min-width:0}
+.th{display:flex;flex-direction:column;gap:3px;margin-bottom:8px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+.th-top{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow:hidden}
+.tn{font-size:.82rem;font-weight:700;color:#fff;display:flex;align-items:center;gap:5px;flex-shrink:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.tc{font-size:.64rem;font-weight:600;color:var(--text3);background:var(--surface2);border:1px solid var(--border);padding:1px 6px;border-radius:999px;flex-shrink:0;white-space:nowrap}
+.tp{font-size:.64rem;font-weight:600;padding:1px 7px;border-radius:999px;white-space:nowrap;line-height:1.6}
+.tp.done{background:rgba(67,184,156,.15);color:var(--c-special);border:1px solid rgba(67,184,156,.3)}
+.tp.part{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+.grid{display:flex;flex-wrap:wrap;gap:8px}
+/* CARD */
+.card{width:148px;flex-shrink:0;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rl);padding:12px 10px 10px;cursor:pointer;transition:all var(--t);display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;user-select:none}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:var(--rl) var(--rl) 0 0;background:var(--rc,transparent)}
+.card:hover{border-color:var(--border2);background:var(--surface2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.card.own{border-color:var(--accent);background:rgba(88,101,242,.08);box-shadow:0 0 0 1px var(--accent),0 4px 20px var(--glow)}
+.card.tm-only{border-color:var(--tm);background:rgba(230,126,34,.07);box-shadow:0 0 0 1px var(--tm),0 4px 20px var(--tm-glow)}
+.ob{position:absolute;top:-5px;right:-5px;width:18px;height:18px;background:var(--accent);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:8px;border:2px solid var(--bg);z-index:2}
+.card.own .ob{display:flex}
+.ob-tm{position:absolute;top:-5px;left:-5px;width:18px;height:18px;background:var(--tm);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:8px;border:2px solid var(--bg);z-index:2}
+.card.tm-owned .ob-tm{display:flex}
+.iw{width:90px;height:90px;display:flex;align-items:center;justify-content:center}
+.img{width:90px;height:90px;object-fit:contain;transition:transform var(--t)}
+.card:hover .img{transform:scale(1.1)}
+.card.own .img{filter:drop-shadow(0 2px 10px rgba(88,101,242,.5))}
+.nm{font-size:.68rem;font-weight:600;color:var(--text);text-align:center;line-height:1.3;width:100%}
+.card.own .nm{color:#fff}
+.meta{display:flex;align-items:center;justify-content:space-between;width:100%;gap:3px}
+.rb{font-size:.6rem;font-weight:700;text-transform:capitalize;padding:2px 5px;border-radius:4px;color:#fff;flex-shrink:0}
+.dr{font-size:.6rem;color:var(--text3);font-weight:500}
+.lr{display:flex;align-items:center;gap:3px;width:100%}
+.ll{font-size:.6rem;color:var(--text3);font-weight:500;flex-shrink:0}
+.lc{display:flex;align-items:center;gap:2px;margin-left:auto}
+.lb{width:19px;height:19px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--t);font-weight:700;flex-shrink:0}
+.lb:hover:not(:disabled){background:var(--border2);color:#fff}
+.lb:disabled{opacity:.3;cursor:default}
+.lv{font-size:.72rem;font-weight:700;color:#fff;min-width:17px;text-align:center}
+.cr{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:2px;gap:3px}
+.cb-wrap{display:flex;flex-direction:column;align-items:center;gap:2px}
+.cb-lbl{font-size:.5rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.3px;line-height:1}
+.cb{width:19px;height:19px;border-radius:4px;border:2px solid var(--border2);background:transparent;display:flex;align-items:center;justify-content:center;transition:all var(--t);flex-shrink:0}
+.card.own .cb.mine{background:var(--accent);border-color:var(--accent)}
+.card.tm-owned .cb.teammate{background:var(--tm);border-color:var(--tm)}
+.cb svg{display:none}
+.card.own .cb.mine svg,.card.tm-owned .cb.teammate svg{display:block}
+.cb.teammate.readonly{cursor:not-allowed;opacity:.85}
+.cb-wrap:has(.cb.teammate.readonly){cursor:not-allowed}
+.st{font-size:.56rem;font-weight:700;color:var(--gold);background:rgba(240,177,50,.12);border:1px solid rgba(240,177,50,.3);padding:1px 4px;border-radius:3px;text-transform:uppercase}
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:26px;width:min(480px,92vw);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.modal h2{font-size:1.05rem;font-weight:800;color:#fff;margin-bottom:18px;display:flex;align-items:center;gap:9px}
+.setting-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid var(--border)}
+.setting-row:last-of-type{border-bottom:none;padding-bottom:0}
+.setting-info{flex:1}
+.setting-title{font-size:.85rem;font-weight:700;color:#fff;margin-bottom:3px}
+.setting-desc{font-size:.73rem;color:var(--text2);line-height:1.4}
+.setting-name-row{display:flex;align-items:center;gap:7px;margin-top:7px}
+.setting-name-row input{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:.8rem;padding:4px 9px;width:130px;outline:none}
+.setting-name-row input:focus{border-color:var(--tm)}
+.toggle{position:relative;width:42px;height:23px;flex-shrink:0;margin-top:3px}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-track{position:absolute;inset:0;background:var(--border2);border-radius:999px;cursor:pointer;transition:background var(--t)}
+.toggle input:checked~.toggle-track{background:var(--tm)}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:17px;height:17px;background:#fff;border-radius:50%;transition:transform var(--t);pointer-events:none}
+.toggle input:checked~.toggle-track~.toggle-thumb{transform:translateX(19px)}
+.modal-foot{display:flex;justify-content:flex-end;margin-top:18px}
+.export-opt-btn{display:flex;align-items:center;gap:13px;width:100%;padding:12px 15px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:inherit;cursor:pointer;transition:all var(--t);text-align:left}
+.export-opt-btn:hover{border-color:var(--accent);background:rgba(88,101,242,.08);color:#fff}
+.export-icon{font-size:1.3rem;flex-shrink:0;width:30px;text-align:center}
+.export-opt-info{flex:1;min-width:0}
+.export-opt-title{font-size:.85rem;font-weight:700;color:#fff;margin-bottom:2px}
+.export-opt-desc{font-size:.71rem;color:var(--text2)}
+.empty{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty h3{font-size:1.05rem;color:var(--text2);margin-bottom:7px}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--surface);border:1px solid var(--accent);color:var(--text);padding:9px 18px;border-radius:var(--r);font-size:.8rem;font-weight:600;opacity:0;transition:all .3s;z-index:999;box-shadow:0 4px 18px rgba(0,0,0,.4);pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:5px}
+</style>
+</head>
+<body>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-bg" id="settingsModal" onclick="if(event.target===this)closeSettings()">
+  <div class="modal">
+    <h2>⚙️ Settings</h2>
+    <div class="setting-row">
+      <div class="setting-info">
+        <div class="setting-title">Teammate Tracker</div>
+        <div class="setting-desc" id="tmAutoDesc">Automatic — whichever profile isn't active shows up as your read-only teammate view.</div>
+      </div>
+    </div>
+    <div class="gh-box">
+      <div class="setting-title">GitHub Sync — <span id="ghProfileLabel">Rob</span></div>
+      <div class="setting-desc">Paste a GitHub token so your own checkmarks save to the repo instead of staying stuck on this device. Only needed once per browser.</div>
+      <div class="gh-row">
+        <input type="password" id="ghTokenInput" placeholder="github_pat_...">
+        <button class="btn btn-a" onclick="saveToken()">Connect</button>
+      </div>
+      <div class="gh-status-line" id="ghStatusLine">Not connected</div>
+      <button class="btn btn-d" style="margin-top:8px" onclick="clearToken()">Disconnect this device</button>
+      <div class="gh-note">
+        Use a <b>fine-grained</b> personal access token, scoped to <b>only this repository</b>
+        (<code>fortnite-sprites-assets</code>) with <b>Contents: Read and write</b> permission, and set an expiration.
+        Create one at <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens</a>.
+        The token is stored only in this browser's local storage — never written into the page itself.
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-a" onclick="closeSettings()">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="modal-bg" id="exportModal" onclick="if(event.target===this)closeExport()">
+  <div class="modal" style="max-width:380px">
+    <h2>⬇ Export Progress</h2>
+    <p style="font-size:.78rem;color:var(--text2);margin-bottom:16px">Exports the active season tab data.</p>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <button class="export-opt-btn" onclick="doExport('mine')">
+        <span class="export-icon">👤</span>
+        <div class="export-opt-info"><div class="export-opt-title">My Sprites</div><div class="export-opt-desc">Your owned status and levels only</div></div>
+      </button>
+      <button class="export-opt-btn" onclick="doExport('all')">
+        <span class="export-icon">📦</span>
+        <div class="export-opt-info"><div class="export-opt-title">Everything</div><div class="export-opt-desc">All of your data plus settings (backup)</div></div>
+      </button>
+    </div>
+    <div class="modal-foot" style="margin-top:16px">
+      <button class="btn" onclick="closeExport()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="hi">
+    <div class="logo">
+      <div class="logo-icon">👾</div>
+      <div class="logo-text">Fortnite Sprite Tracker</div>
+    </div>
+    <div class="profile-switch" role="group" aria-label="Active profile">
+      <button class="profile-btn" id="profBtnRob" onclick="switchProfile('rob')">Rob</button>
+      <button class="profile-btn" id="profBtnTro" onclick="switchProfile('tro')">Tro</button>
+    </div>
+    <span class="sync-status" id="syncStatus" onclick="retrySaveNow()"></span>
+    <div class="stats">
+      <div class="chip">Mine <span class="v" id="sOwn">0</span>&thinsp;/&thinsp;<span class="v" id="sTotal">0</span></div>
+      <div class="chip">Levels <span class="vg" id="sLvl">0</span>&thinsp;/&thinsp;<span class="v" id="sMaxLvl">0</span></div>
+      <div class="chip"><span class="v" id="sPct">0%</span> complete</div>
+      <div class="chip" id="tmChip" style="display:none"><span id="tmChipLabel">Teammate</span>&nbsp;<span class="vtm" id="sTm">0</span>&thinsp;/&thinsp;<span class="v" id="sTmTotal">0</span></div>
+    </div>
+    <div class="hact">
+      <span class="ver">v2.4.4</span>
+      <div class="layout-toggle" role="group" aria-label="Layout mode">
+        <button class="pill" id="layoutClassic" onclick="setLayoutMode('classic')">Classic</button>
+        <button class="pill" id="layoutDynamic" onclick="setLayoutMode('dynamic')">Dynamic</button>
+      </div>
+      <button class="btn btn-a" onclick="openExport()">⬇ Export</button>
+      <button class="btn" onclick="importData()">⬆ Import</button>
+      <button class="btn btn-g" onclick="openSettings()">⚙️ Settings</button>
+      <button class="btn btn-d" onclick="resetAll()">✕ Reset</button>
+    </div>
+  </div>
+  <div class="pw"><div class="pt"><div class="pf" id="pf" style="width:0%"></div></div></div>
+</header>
+
+<!-- SEASON TABS -->
+<div class="tab-bar">
+  <button class="tab-btn" id="tabS3" onclick="switchSeason('s3')">CH7 S3</button>
+  <button class="tab-btn active" id="tabS4" onclick="switchSeason('s4')">CH7 S4</button>
+</div>
+
+<div class="ctrl">
+  <div class="cg">
+    <span class="cl">Show</span>
+    <div class="pg" id="showPills">
+      <button class="pill on" data-own="all"          onclick="setF('own','all',this)">All</button>
+      <button class="pill"    data-own="owned"         onclick="setF('own','owned',this)">Owned</button>
+      <button class="pill"    data-own="missing"       onclick="setF('own','missing',this)">Missing</button>
+      <button class="pill"    data-own="tm-missing"    id="tmMissingPill"  style="display:none" onclick="setF('own','tm-missing',this)">Teammate Missing</button>
+      <button class="pill"    data-own="i-have-tm-not" id="iHaveTmNotPill" style="display:none" onclick="setF('own','i-have-tm-not',this)">I Have, Teammate Doesn’t</button>
+      <button class="pill"    data-own="tm-has-i-not"  id="tmHasINotPill"  style="display:none" onclick="setF('own','tm-has-i-not',this)">Teammate Has, I Don’t</button>
+    </div>
+  </div>
+  <div class="cg">
+    <span class="cl">Variant</span>
+    <div class="pg" id="varPills"><!-- built by JS per season --></div>
+  </div>
+  <div class="cg">
+    <span class="cl">Sort</span>
+    <select id="srt" onchange="render()">
+      <option value="type">By Type</option>
+      <option value="rarity">By Rarity</option>
+      <option value="name">By Name</option>
+    </select>
+  </div>
+  <div class="sw" id="srchWrap">
+    <svg class="si" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input class="si2" id="srch" type="text" placeholder="Search sprites…" oninput="onSearchInput()">
+    <button class="sc" id="srchClear" onclick="clearSearch()" aria-label="Clear search" title="Clear search">✕</button>
+  </div>
+</div>
+
+<main id="main"></main>
+<div id="toast"></div>
+<input type="file" id="ifile" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+// ── S3 DATA ───────────────────────────────────────────────────────────────
+
+const ASSET_ROOT = './sprites/';
+const ASSET_OVERRIDES = {
+  118: "Peeky Peely Sprite.webp", // s3: Peely Sprite,
+  119: "Gold Peeky Peely Sprite.webp", // s3: Gold Peely Sprite,
+  120: "Gummy Peeky Peely Sprite.webp", // s3: Gummy Peely Sprite,
+  121: "Galaxy Peeky Peely Sprite.webp", // s3: Galaxy Peely Sprite,
+  122: "Holofoil Peeky Peely Sprite.webp", // s3: Holofoil Peely Sprite,
+  241: "Cheatmaster Onigiri Sprite.webp", // s4: Cheat Master Onigiri Sprite,
+  244: "Cheatmaster X-Ray Sprite.webp", // s4: Cheat Master X-Ray Sprite
+};
+
+function spriteURL(sk, sp) {
+  const filename = ASSET_OVERRIDES[sp.id] || (sp.name + '.webp');
+  return ASSET_ROOT + sk + '/' + encodeURIComponent(filename);
+}
+
+const SPRITES_S3 = [
+  {id:1, name:"Water Sprite", type:"Water", variant:"Base", rarity:"rare", drop:"8.88%", starter:true},
+  {id:4, name:"Gold Water Sprite", type:"Water", variant:"Gold", rarity:"special", drop:"0.7%", starter:false},
+  {id:2, name:"Gummy Water Sprite", type:"Water", variant:"Candy", rarity:"special", drop:"4.23%", starter:false},
+  {id:3, name:"Galaxy Water Sprite", type:"Water", variant:"Galaxy", rarity:"special", drop:"0.28%", starter:false},
+  {id:5, name:"Earth Sprite", type:"Earth", variant:"Base", rarity:"rare", drop:"8.88%", starter:true},
+  {id:8, name:"Gold Earth Sprite", type:"Earth", variant:"Gold", rarity:"special", drop:"0.7%", starter:false},
+  {id:6, name:"Gummy Earth Sprite", type:"Earth", variant:"Candy", rarity:"special", drop:"4.23%", starter:false},
+  {id:7, name:"Galaxy Earth Sprite", type:"Earth", variant:"Galaxy", rarity:"special", drop:"0.28%", starter:false},
+  {id:9, name:"Fire Sprite", type:"Fire", variant:"Base", rarity:"rare", drop:"8.88%", starter:true},
+  {id:12, name:"Gold Fire Sprite", type:"Fire", variant:"Gold", rarity:"special", drop:"0.7%", starter:false},
+  {id:10, name:"Gummy Fire Sprite", type:"Fire", variant:"Candy", rarity:"special", drop:"4.23%", starter:false},
+  {id:11, name:"Galaxy Fire Sprite", type:"Fire", variant:"Galaxy", rarity:"special", drop:"0.28%", starter:false},
+  {id:13, name:"Duck Sprite", type:"Duck", variant:"Base", rarity:"epic", drop:"4.04%", starter:false},
+  {id:16, name:"Gold Duck Sprite", type:"Duck", variant:"Gold", rarity:"special", drop:"0.05%", starter:false},
+  {id:14, name:"Gummy Duck Sprite", type:"Duck", variant:"Candy", rarity:"special", drop:"1.76%", starter:false},
+  {id:15, name:"Galaxy Duck Sprite", type:"Duck", variant:"Galaxy", rarity:"special", drop:"0.02%", starter:false},
+  {id:17, name:"Ghost Sprite", type:"Ghost", variant:"Base", rarity:"epic", drop:"4.04%", starter:false},
+  {id:20, name:"Gold Ghost Sprite", type:"Ghost", variant:"Gold", rarity:"special", drop:"0.05%", starter:false},
+  {id:18, name:"Gummy Ghost Sprite", type:"Ghost", variant:"Candy", rarity:"special", drop:"1.76%", starter:false},
+  {id:19, name:"Galaxy Ghost Sprite", type:"Ghost", variant:"Galaxy", rarity:"special", drop:"0.02%", starter:false},
+  {id:21, name:"Dream Sprite", type:"Dream", variant:"Base", rarity:"legendary", drop:"1.85%", starter:false},
+  {id:24, name:"Gold Dream Sprite", type:"Dream", variant:"Gold", rarity:"special", drop:"0.02%", starter:false},
+  {id:22, name:"Gummy Dream Sprite", type:"Dream", variant:"Candy", rarity:"special", drop:"0.81%", starter:false},
+  {id:23, name:"Galaxy Dream Sprite", type:"Dream", variant:"Galaxy", rarity:"special", drop:"0.01%", starter:false},
+  {id:37, name:"Demon Sprite", type:"Demon", variant:"Base", rarity:"epic", drop:"4.06%", starter:false},
+  {id:40, name:"Gold Demon Sprite", type:"Demon", variant:"Gold", rarity:"special", drop:"0.05%", starter:false},
+  {id:38, name:"Gummy Demon Sprite", type:"Demon", variant:"Candy", rarity:"special", drop:"1.76%", starter:false},
+  {id:39, name:"Galaxy Demon Sprite", type:"Demon", variant:"Galaxy", rarity:"special", drop:"0%", starter:false},
+  {id:25, name:"Punk Sprite", type:"Punk", variant:"Base", rarity:"legendary", drop:"1.39%", starter:false},
+  {id:28, name:"Gold Punk Sprite", type:"Punk", variant:"Gold", rarity:"special", drop:"0.02%", starter:false},
+  {id:26, name:"Gummy Punk Sprite", type:"Punk", variant:"Candy", rarity:"special", drop:"0.61%", starter:false},
+  {id:27, name:"Galaxy Punk Sprite", type:"Punk", variant:"Galaxy", rarity:"special", drop:"0%", starter:false},
+  {id:29, name:"King Sprite", type:"King", variant:"Base", rarity:"epic", drop:"4.04%", starter:false},
+  {id:32, name:"Gold King Sprite", type:"King", variant:"Gold", rarity:"special", drop:"0.05%", starter:false},
+  {id:30, name:"Gummy King Sprite", type:"King", variant:"Candy", rarity:"special", drop:"1.76%", starter:false},
+  {id:31, name:"Galaxy King Sprite", type:"King", variant:"Galaxy", rarity:"special", drop:"0.02%", starter:false},
+  {id:41, name:"Burnt Peanut", type:"Burnt Peanut", variant:"Base", rarity:"mythic", drop:"1.01%", starter:false},
+  {id:33, name:"Zero Point Sprite", type:"Zero Point", variant:"Base", rarity:"mythic", drop:"0.000069%", starter:false},
+  {id:36, name:"Gold Zero Point Sprite", type:"Zero Point", variant:"Gold", rarity:"special", drop:"0.0000008%", starter:false},
+  {id:34, name:"Gummy Zero Point Sprite", type:"Zero Point", variant:"Candy", rarity:"special", drop:"0.00003%", starter:false},
+  {id:35, name:"Galaxy Zero Point Sprite", type:"Zero Point", variant:"Galaxy", rarity:"special", drop:"0.0000003%", starter:false},
+  {id:58, name:"Fishy Sprite", type:"Fishy", variant:"Base", rarity:"rare", drop:"13.79%", starter:false},
+  {id:61, name:"Gold Fishy Sprite", type:"Fishy", variant:"Gold", rarity:"special", drop:"0.17%", starter:false},
+  {id:59, name:"Gummy Fishy Sprite", type:"Fishy", variant:"Candy", rarity:"special", drop:"0.08%", starter:false},
+  {id:60, name:"Galaxy Fishy Sprite", type:"Fishy", variant:"Galaxy", rarity:"special", drop:"0.06%", starter:false},
+  {id:62, name:"Striker Sprite", type:"Striker", variant:"Base", rarity:"epic", drop:"5.74%", starter:false},
+  {id:65, name:"Gold Striker Sprite", type:"Striker", variant:"Gold", rarity:"special", drop:"0.07%", starter:false},
+  {id:63, name:"Gummy Striker Sprite", type:"Striker", variant:"Candy", rarity:"special", drop:"0.04%", starter:false},
+  {id:64, name:"Galaxy Striker Sprite", type:"Striker", variant:"Galaxy", rarity:"special", drop:"0.02%", starter:false},
+  {id:67, name:"Aura Sprite", type:"Aura", variant:"Base", rarity:"epic", drop:"5.74%", starter:false},
+  {id:71, name:"Gold Aura Sprite", type:"Aura", variant:"Gold", rarity:"special", drop:"0.07%", starter:false},
+  {id:68, name:"Gummy Aura Sprite", type:"Aura", variant:"Candy", rarity:"special", drop:"0.04%", starter:false},
+  {id:69, name:"Galaxy Aura Sprite", type:"Aura", variant:"Galaxy", rarity:"special", drop:"0.02%", starter:false},
+  {id:49, name:"Boss Sprite", type:"Boss", variant:"Base", rarity:"legendary", drop:"2.63%", starter:false},
+  {id:50, name:"Gold Boss Sprite", type:"Boss", variant:"Gold", rarity:"special", drop:"0.03%", starter:false},
+  {id:51, name:"Gummy Boss Sprite", type:"Boss", variant:"Candy", rarity:"special", drop:"0.02%", starter:false},
+  {id:52, name:"Galaxy Boss Sprite", type:"Boss", variant:"Galaxy", rarity:"special", drop:"0.01%", starter:false},
+  {id:78, name:"Grim Sprite", type:"Grim", variant:"Base", rarity:"mythic", drop:"0.000098%", starter:false},
+  {id:81, name:"Gold Grim Sprite", type:"Grim", variant:"Gold", rarity:"special", drop:"0.0000012%", starter:false},
+  {id:79, name:"Gummy Grim Sprite", type:"Grim", variant:"Candy", rarity:"special", drop:"0.0000006%", starter:false},
+  {id:80, name:"Galaxy Grim Sprite", type:"Grim", variant:"Galaxy", rarity:"special", drop:"0.0000004%", starter:false},
+  {id:83, name:"Holofoil Water Sprite", type:"Water", variant:"Holofoil", rarity:"special", drop:"0%", starter:false},
+  {id:84, name:"Holofoil Fire Sprite", type:"Fire", variant:"Holofoil", rarity:"special", drop:"0%", starter:false},
+  {id:85, name:"Holofoil Ghost Sprite", type:"Ghost", variant:"Holofoil", rarity:"special", drop:"0%", starter:false},
+  {id:86, name:"Holofoil King Sprite", type:"King", variant:"Holofoil", rarity:"special", drop:"0%", starter:false},
+  {id:87, name:"Holofoil Striker Sprite", type:"Striker", variant:"Holofoil", rarity:"special", drop:"0%", starter:false},
+  {id:88, name:"Seven Sprite", type:"Seven", variant:"Base", rarity:"legendary", drop:"0%", starter:false},
+  {id:89, name:"Gold Seven Sprite", type:"Seven", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:90, name:"Gummy Seven Sprite", type:"Seven", variant:"Candy", rarity:"special", drop:"0%", starter:false},
+  {id:91, name:"Galaxy Seven Sprite", type:"Seven", variant:"Galaxy", rarity:"special", drop:"0%", starter:false},
+  {id:92, name:"Holofoil Seven Sprite", type:"Seven", variant:"Holofoil", rarity:"special", drop:"0%", starter:false},
+  {id:93, name:"Air Sprite", type:"Air", variant:"Base", rarity:"rare", drop:"0%", starter:false},
+  {id:94, name:"Gold Air Sprite", type:"Air", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:95, name:"Gummy Air Sprite", type:"Air", variant:"Candy", rarity:"special", drop:"0%", starter:false},
+  {id:96, name:"Galaxy Air Sprite", type:"Air", variant:"Galaxy", rarity:"special", drop:"0%", starter:false},
+  {id:97, name:"Holofoil Air Sprite", type:"Air", variant:"Holofoil", rarity:"special", drop:"0%", starter:false},
+  {id:98, name:"Batman Sprite", type:"Batman", variant:"Base", rarity:"mythic", drop:"0%", starter:false},
+  {id:99, name:"Gold Batman Sprite", type:"Batman", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:100, name:"Gummy Batman Sprite", type:"Batman", variant:"Candy", rarity:"special", drop:"0%", starter:false},
+  {id:101, name:"Galaxy Batman Sprite", type:"Batman", variant:"Galaxy", rarity:"special", drop:"0%", starter:false},
+  {id:102, name:"Holofoil Batman Sprite", type:"Batman", variant:"Holofoil", rarity:"special", drop:"0%", starter:false},
+  {id:103, name:"Vini Jr. Sprite", type:"Vini Jr.", variant:"Base", rarity:"mythic", drop:"0%", starter:false}
+,
+  {id:104, name:"Cube Earth Sprite", type:"Earth", variant:"Cube", rarity:"special", drop:"0%", starter:false},
+  {id:105, name:"Cube Fire Sprite", type:"Fire", variant:"Cube", rarity:"special", drop:"0%", starter:false},
+  {id:106, name:"Cube Fishy Sprite", type:"Fishy", variant:"Cube", rarity:"special", drop:"0%", starter:false},
+  {id:107, name:"Cube Punk Sprite", type:"Punk", variant:"Cube", rarity:"special", drop:"0%", starter:false},
+  {id:108, name:"Cube Dream Sprite", type:"Dream", variant:"Cube", rarity:"special", drop:"0%", starter:false},
+  {id:109, name:"Cube Boss Sprite", type:"Boss", variant:"Cube", rarity:"special", drop:"0%", starter:false},
+  {id:110, name:"Cube Batman Sprite", type:"Batman", variant:"Cube", rarity:"special", drop:"0%", starter:false},
+  {id:111, name:"Cube Grim Sprite", type:"Grim", variant:"Cube", rarity:"special", drop:"0%", starter:false},
+  {id:112, name:"Pollo Sprite", type:"Pollo", variant:"Base", rarity:"mythic", drop:"0%", starter:false}
+,
+  {id:113, name:"Llama Sprite", type:"Llama", variant:"Base", rarity:"epic", drop:"0%", starter:false},
+  {id:114, name:"Gold Llama Sprite", type:"Llama", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:115, name:"Gummy Llama Sprite", type:"Llama", variant:"Candy", rarity:"special", drop:"0%", starter:false},
+  {id:116, name:"Galaxy Llama Sprite", type:"Llama", variant:"Galaxy", rarity:"special", drop:"0%", starter:false},
+  {id:117, name:"Gem Llama Sprite", type:"Llama", variant:"Gem", rarity:"special", drop:"0%", starter:false},
+  {id:118, name:"Peely Sprite", type:"Peely", variant:"Base", rarity:"epic", drop:"0%", starter:false},
+  {id:119, name:"Gold Peely Sprite", type:"Peely", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:120, name:"Gummy Peely Sprite", type:"Peely", variant:"Candy", rarity:"special", drop:"0%", starter:false},
+  {id:121, name:"Galaxy Peely Sprite", type:"Peely", variant:"Galaxy", rarity:"special", drop:"0%", starter:false},
+  {id:122, name:"Holofoil Peely Sprite", type:"Peely", variant:"Holofoil", rarity:"special", drop:"0%", starter:false},
+  {id:123, name:"Quack Water Sprite", type:"Water", variant:"Quack", rarity:"special", drop:"0%", starter:false},
+  {id:124, name:"Quack Earth Sprite", type:"Earth", variant:"Quack", rarity:"special", drop:"0%", starter:false},
+  {id:125, name:"Quack Fire Sprite", type:"Fire", variant:"Quack", rarity:"special", drop:"0%", starter:false},
+  {id:126, name:"Quack Zero Point Sprite", type:"Zero Point", variant:"Quack", rarity:"special", drop:"0%", starter:false},
+  {id:127, name:"Holofoil Grim Sprite", type:"Grim", variant:"Holofoil", rarity:"special", drop:"0%", starter:false},
+  {id:128, name:"Holofoil Zero Point Sprite", type:"Zero Point", variant:"Holofoil", rarity:"special", drop:"0%", starter:false},
+  {id:129, name:"Cube Zero Point Sprite", type:"Zero Point", variant:"Cube", rarity:"special", drop:"0%", starter:false},
+  {id:130, name:"John Wick Sprite", type:"John Wick", variant:"Base", rarity:"mythic", drop:"0%", starter:false}
+,
+  {id:131, name:"Gem Water Sprite", type:"Water", variant:"Gem", rarity:"special", drop:"0%", starter:false},
+  {id:132, name:"Gem Earth Sprite", type:"Earth", variant:"Gem", rarity:"special", drop:"0%", starter:false},
+  {id:133, name:"Gem Duck Sprite", type:"Duck", variant:"Gem", rarity:"special", drop:"0%", starter:false},
+  {id:134, name:"Gem Demon Sprite", type:"Demon", variant:"Gem", rarity:"special", drop:"0%", starter:false},
+  {id:135, name:"Gem Zero Point Sprite", type:"Zero Point", variant:"Gem", rarity:"special", drop:"0%", starter:false},
+  {id:136, name:"Gem Aura Sprite", type:"Aura", variant:"Gem", rarity:"special", drop:"0%", starter:false},
+  {id:137, name:"Gem Grim Sprite", type:"Grim", variant:"Gem", rarity:"special", drop:"0%", starter:false},
+  {id:138, name:"Ironmouse Sprite", type:"Ironmouse", variant:"Base", rarity:"mythic", drop:"0%", starter:false}
+];
+
+// ── S4 DATA ───────────────────────────────────────────────────────────────
+
+const SPRITES_S4 = [
+  {id:200, name:"Jonesy Sprite", type:"Jonesy", variant:"Base", rarity:"rare", drop:"0%", starter:true},
+  {id:201, name:"Gold Jonesy Sprite", type:"Jonesy", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:202, name:"Cheat Master Jonesy Sprite", type:"Jonesy", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:203, name:"Bush Sprite", type:"Bush", variant:"Base", rarity:"rare", drop:"0%", starter:true},
+  {id:204, name:"Gold Bush Sprite", type:"Bush", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:205, name:"Cheat Master Bush Sprite", type:"Bush", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:206, name:"Adventure Sprite", type:"Adventure", variant:"Base", rarity:"rare", drop:"0%", starter:true},
+  {id:207, name:"Gold Adventure Sprite", type:"Adventure", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:208, name:"Cheat Master Adventure Sprite", type:"Adventure", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:209, name:"8-Bit Sprite", type:"8-Bit", variant:"Base", rarity:"rare", drop:"0%", starter:false},
+  {id:210, name:"Gold 8-Bit Sprite", type:"8-Bit", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:211, name:"Cheat Master 8-Bit Sprite", type:"8-Bit", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:212, name:"Sonic Sprite", type:"Sonic", variant:"Base", rarity:"epic", drop:"0%", starter:false},
+  {id:213, name:"Gold Sonic Sprite", type:"Sonic", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:214, name:"Cheat Master Sonic Sprite", type:"Sonic", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:215, name:"Tails Sprite", type:"Tails", variant:"Base", rarity:"epic", drop:"0%", starter:false},
+  {id:216, name:"Gold Tails Sprite", type:"Tails", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:217, name:"Cheat Master Tails Sprite", type:"Tails", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:218, name:"Shadow Sprite", type:"Shadow", variant:"Base", rarity:"epic", drop:"0%", starter:false},
+  {id:219, name:"Gold Shadow Sprite", type:"Shadow", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:220, name:"Cheat Master Shadow Sprite", type:"Shadow", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:221, name:"Killswitch Sprite", type:"Killswitch", variant:"Base", rarity:"epic", drop:"0%", starter:false},
+  {id:222, name:"Gold Killswitch Sprite", type:"Killswitch", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:223, name:"Cheat Master Killswitch Sprite", type:"Killswitch", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:224, name:"Jackrabbit Sprite", type:"Jackrabbit", variant:"Base", rarity:"legendary", drop:"0%", starter:false},
+  {id:225, name:"Gold Jackrabbit Sprite", type:"Jackrabbit", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:226, name:"Cheat Master Jackrabbit Sprite", type:"Jackrabbit", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:227, name:"Klombo Sprite", type:"Klombo", variant:"Base", rarity:"mythic", drop:"0%", starter:false},
+  {id:228, name:"Gold Klombo Sprite", type:"Klombo", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:229, name:"Cheat Master Klombo Sprite", type:"Klombo", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:230, name:"Crown Sprite", type:"Crown", variant:"Base", rarity:"mythic", drop:"0%", starter:false},
+  {id:231, name:"Gold Crown Sprite", type:"Crown", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:232, name:"Cheat Master Crown Sprite", type:"Crown", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false}
+,
+  {id:233, name:"Storm Scout Sprite", type:"Storm Scout", variant:"Base", rarity:"rare", drop:"0%", starter:false},
+  {id:234, name:"Gold Storm Scout Sprite", type:"Storm Scout", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:235, name:"Cheat Master Storm Scout Sprite", type:"Storm Scout", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:236, name:"Overshield Sprite", type:"Overshield", variant:"Base", rarity:"rare", drop:"0%", starter:false},
+  {id:237, name:"Gold Overshield Sprite", type:"Overshield", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:238, name:"Cheat Master Overshield Sprite", type:"Overshield", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:239, name:"Onigiri Sprite", type:"Onigiri", variant:"Base", rarity:"rare", drop:"0%", starter:false},
+  {id:240, name:"Gold Onigiri Sprite", type:"Onigiri", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:241, name:"Cheat Master Onigiri Sprite", type:"Onigiri", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:242, name:"X-Ray Sprite", type:"X-Ray", variant:"Base", rarity:"legendary", drop:"0%", starter:false},
+  {id:243, name:"Gold X-Ray Sprite", type:"X-Ray", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:244, name:"Cheat Master X-Ray Sprite", type:"X-Ray", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:245, name:"Mega Man Sprite", type:"Mega Man", variant:"Base", rarity:"rare", drop:"0%", starter:false},
+  {id:246, name:"Loot Hacker Crown Sprite", type:"Crown", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:247, name:"Loot Hacker Jonesy Sprite", type:"Jonesy", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:248, name:"Loot Hacker Adventure Sprite", type:"Adventure", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:249, name:"Loot Hacker Bushranger Sprite", type:"Bush", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:250, name:"Loot Hacker Sonic Sprite", type:"Sonic", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:251, name:"Loot Hacker Tails Sprite", type:"Tails", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:252, name:"Loot Hacker Shadow Sprite", type:"Shadow", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:253, name:"Loot Hacker 8-Bit Sprite", type:"8-Bit", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:254, name:"Loot Hacker Jackrabbit Sprite", type:"Jackrabbit", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:255, name:"Bounty Hunter Crown Sprite", type:"Crown", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:256, name:"Loot Hacker Killswitch Sprite", type:"Killswitch", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:257, name:"Loot Hacker Klombo Sprite", type:"Klombo", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:258, name:"Loot Hacker Overshield Sprite", type:"Overshield", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:259, name:"Loot Hacker X-Ray Sprite", type:"X-Ray", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:260, name:"Loot Hacker Onigiri Sprite", type:"Onigiri", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:261, name:"Loot Hacker Storm Scout Sprite", type:"Storm Scout", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:262, name:"Blinky Sprite", type:"Blinky", variant:"Base", rarity:"legendary", drop:"0%", starter:false},
+  {id:263, name:"Gold Blinky Sprite", type:"Blinky", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:264, name:"Cheat Master Blinky Sprite", type:"Blinky", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:265, name:"Loot Hacker Blinky Sprite", type:"Blinky", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:266, name:"Crash Bandicoot Sprite", type:"Crash Bandicoot", variant:"Base", rarity:"legendary", drop:"0%", starter:false},
+  {id:267, name:"Gold Crash Bandicoot Sprite", type:"Crash Bandicoot", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:268, name:"Cheat Master Crash Bandicoot Sprite", type:"Crash Bandicoot", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:269, name:"Loot Hacker Crash Bandicoot Sprite", type:"Crash Bandicoot", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:270, name:"Pond Sprite", type:"Pond", variant:"Base", rarity:"epic", drop:"0%", starter:false},
+  {id:271, name:"Gold Pond Sprite", type:"Pond", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:272, name:"Cheat Master Pond Sprite", type:"Pond", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:273, name:"Loot Hacker Pond Sprite", type:"Pond", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:274, name:"Bounty Hunter Jonesy Sprite", type:"Jonesy", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:275, name:"Bounty Hunter Adventure Sprite", type:"Adventure", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:276, name:"Bounty Hunter Bush Sprite", type:"Bush", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:277, name:"Bounty Hunter Sonic Sprite", type:"Sonic", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:278, name:"Bounty Hunter Tails Sprite", type:"Tails", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:279, name:"Bounty Hunter Shadow Sprite", type:"Shadow", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:280, name:"Bounty Hunter 8-Bit Sprite", type:"8-Bit", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:281, name:"Bounty Hunter Jackrabbit Sprite", type:"Jackrabbit", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:282, name:"Bounty Hunter Killswitch Sprite", type:"Killswitch", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:283, name:"Bounty Hunter Klombo Sprite", type:"Klombo", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:284, name:"Bounty Hunter Overshield Sprite", type:"Overshield", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:285, name:"Bounty Hunter X-Ray Sprite", type:"X-Ray", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:286, name:"Bounty Hunter Onigiri Sprite", type:"Onigiri", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:287, name:"Bounty Hunter Storm Scout Sprite", type:"Storm Scout", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:288, name:"Bounty Hunter Blinky Sprite", type:"Blinky", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:289, name:"Bounty Hunter Body Slam Sprite", type:"Crash Bandicoot", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:290, name:"Bounty Hunter Pond Sprite", type:"Pond", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:291, name:"Morgana Sprite", type:"Morgana", variant:"Base", rarity:"epic", drop:"0%", starter:false},
+  {id:292, name:"Gold Morgana Sprite", type:"Morgana", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:293, name:"Cheat Master Morgana Sprite", type:"Morgana", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:294, name:"Loot Hacker Morgana Sprite", type:"Morgana", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:295, name:"Bounty Hunter Morgana Sprite", type:"Morgana", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:296, name:"Birthday Sprite", type:"Birthday", variant:"Base", rarity:"rare", drop:"0%", starter:false},
+  {id:297, name:"Gold Birthday Sprite", type:"Birthday", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:298, name:"Cheat Master Birthday Sprite", type:"Birthday", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:299, name:"Loot Hacker Birthday Sprite", type:"Birthday", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:300, name:"Bounty Hunter Birthday Sprite", type:"Birthday", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:301, name:"Spooky Dash Sprite", type:"Spooky Dash", variant:"Base", rarity:"mythic", drop:"0%", starter:false},
+  {id:302, name:"Gold Spooky Dash Sprite", type:"Spooky Dash", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:303, name:"Cheat Master Spooky Dash Sprite", type:"Spooky Dash", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:304, name:"Loot Hacker Spooky Dash Sprite", type:"Spooky Dash", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:305, name:"Bounty Hunter Spooky Dash Sprite", type:"Spooky Dash", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:306, name:"Vampire Sprite", type:"Vampire", variant:"Base", rarity:"legendary", drop:"0%", starter:false},
+  {id:307, name:"Gold Vampire Sprite", type:"Vampire", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:308, name:"Cheatmaster Vampire Sprite", type:"Vampire", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:309, name:"Loot Hacker Vampire Sprite", type:"Vampire", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:310, name:"Bounty Hunter Vampire Sprite", type:"Vampire", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:311, name:"The Deer Sprite", type:"The Deer", variant:"Base", rarity:"legendary", drop:"0%", starter:false},
+  {id:312, name:"Gold The Deer Sprite", type:"The Deer", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:313, name:"Cheatmaster The Deer Sprite", type:"The Deer", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:314, name:"Loot Hacker The Deer Sprite", type:"The Deer", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:315, name:"Bounty Hunter The Deer Sprite", type:"The Deer", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:316, name:"Dumpster Dive Sprite", type:"Dumpster Dive", variant:"Base", rarity:"epic", drop:"0%", starter:false},
+  {id:317, name:"Gold Dumpster Dive Sprite", type:"Dumpster Dive", variant:"Gold", rarity:"special", drop:"0%", starter:false},
+  {id:318, name:"Cheat Master Dumpster Dive Sprite", type:"Dumpster Dive", variant:"Cheat Master", rarity:"special", drop:"0%", starter:false},
+  {id:319, name:"Loot Hacker Dumpster Dive Sprite", type:"Dumpster Dive", variant:"Loot Hacker", rarity:"special", drop:"0%", starter:false},
+  {id:320, name:"Bounty Hunter Dumpster Dive Sprite", type:"Dumpster Dive", variant:"Bounty Hunter", rarity:"special", drop:"0%", starter:false},
+  {id:321, name:"Trick or Treat Jonesy Sprite", type:"Jonesy", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:322, name:"Trick or Treat Adventure Sprite", type:"Adventure", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:323, name:"Trick or Treat Bushranger Sprite", type:"Bush", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:324, name:"Trick or Treat Sonic Sprite", type:"Sonic", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:325, name:"Trick or Treat Tails Sprite", type:"Tails", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:326, name:"Trick or Treat Shadow Sprite", type:"Shadow", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:327, name:"Trick or Treat 8-Bit Sprite", type:"8-Bit", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:328, name:"Trick or Treat Jackrabbit Sprite", type:"Jackrabbit", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:329, name:"Trick or Treat Crown Sprite", type:"Crown", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:330, name:"Trick or Treat Killswitch Sprite", type:"Killswitch", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:331, name:"Trick or Treat Klombo Sprite", type:"Klombo", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:332, name:"Trick or Treat Overshield Sprite", type:"Overshield", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:333, name:"Trick or Treat X-Ray Sprite", type:"X-Ray", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:334, name:"Trick or Treat Onigiri Sprite", type:"Onigiri", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:335, name:"Trick or Treat Storm Scout Sprite", type:"Storm Scout", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:336, name:"Trick or Treat Blinky Sprite", type:"Blinky", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:337, name:"Trick or Treat Birthday Sprite", type:"Birthday", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:338, name:"Trick or Treat Crash Bandicoot Sprite", type:"Crash Bandicoot", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:339, name:"Trick or Treat Pond Sprite", type:"Pond", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:340, name:"Trick or Treat Morgana Sprite", type:"Morgana", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:341, name:"Trick or Treat Spooky Dash Sprite", type:"Spooky Dash", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:342, name:"Trick or Treat Vampire Sprite", type:"Vampire", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:343, name:"Trick or Treat The Deer Sprite", type:"The Deer", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false},
+  {id:344, name:"Trick or Treat Dumpster Dive Sprite", type:"Dumpster Dive", variant:"Trick or Treat", rarity:"special", drop:"0%", starter:false}
+];
+
+// ── SEASON CONFIG ─────────────────────────────────────────────────────────
+const SEASONS = {
+  s3: {
+    label: 'CH7 S3',
+    SPRITES: SPRITES_S3,
+    TI: {Water:'💧',Earth:'🌱',Fire:'🔥',Duck:'🦆',Ghost:'👻',Dream:'💤',Demon:'😈',Punk:'🎸',King:'👑','Burnt Peanut':'🥜','Zero Point':'⚡',Fishy:'🐟',Striker:'⚽',Aura:'✨',Boss:'💪',Grim:'💀',Llama:'🦙',Peely:'🍌','John Wick':'🤵',Ironmouse:'🎤',Pollo:'🐓','Vini Jr.':'⚽',Batman:'🦇'},
+    pinnedLast: ['Batman','Burnt Peanut','Vini Jr.','Pollo','John Wick','Ironmouse'],
+    variants: ['All','Base','Gold','Candy','Galaxy','Holofoil','Gem','Cube','Quack'],
+    KEY: 'fnSprites_s3',
+  },
+  s4: {
+    label: 'CH7 S4',
+    SPRITES: SPRITES_S4,
+    TI: {Jonesy:'🧑',Bush:'🌿',Adventure:'⚔️','8-Bit':'🎮',Sonic:'💙',Tails:'🦊',Shadow:'🖤',Killswitch:'💀',Jackrabbit:'🐰',Klombo:'🦕',Crown:'👑','Storm Scout':'🌪️',Overshield:'🛡️',Onigiri:'🍙','X-Ray':'🔬','Mega Man':'🤖',Blinky:'💡','Crash Bandicoot':'💥',Pond:'🫧',Morgana:'🐈',Birthday:'🎂','Spooky Dash':'🎃',Vampire:'🧛','The Deer':'🦌','Dumpster Dive':'🗑️'},
+    pinnedLast: ['Crown','Klombo','Mega Man'],
+    variants: ['All','Base','Gold','Cheat Master','Loot Hacker','Bounty Hunter','Trick or Treat'],
+    KEY: 'fnSprites_s4',
+  },
+};
+
+// ── SUPPRESSED CONTENT ──────────────────────────────────────────────────────
+// Released too early — hide from rosters/filters/stats without deleting the
+// underlying sprite data. Clear this set later to bring them back.
+const SUPPRESSED_VARIANTS = new Set(['Trick or Treat']);
+Object.keys(SEASONS).forEach(sk=>{
+  SEASONS[sk].SPRITES  = SEASONS[sk].SPRITES.filter(sp=>!SUPPRESSED_VARIANTS.has(sp.variant));
+  SEASONS[sk].variants = SEASONS[sk].variants.filter(v=>!SUPPRESSED_VARIANTS.has(v));
+});
+
+// ── PROFILES / GITHUB SYNC ──────────────────────────────────────────────────
+const GH_OWNER='robertduggan', GH_REPO='fortnite-sprites-assets', GH_BRANCH='main';
+const PROFILES = {
+  rob: {label:'Rob', file:'progress/rob.json'},
+  tro: {label:'Tro', file:'progress/tro.json'},
+};
+const PKEY = 'fnSprites_activeProfile';
+const tokenKey = p => 'fnSprites_ghToken_'+p;
+const cacheKey = p => 'fnSprites_profileCache_'+p;
+
+let activeProfile = localStorage.getItem(PKEY) || 'rob';
+let profileData   = {rob:null, tro:null}; // {s3:{id:{owned,level}}, s4:{...}} per profile
+let syncStatus    = 'idle';
+
+function otherProfile(){ return activeProfile==='rob' ? 'tro' : 'rob'; }
+
+function emptyProfileData(){
+  const d={};
+  Object.keys(SEASONS).forEach(sk=>{
+    d[sk]={};
+    SEASONS[sk].SPRITES.forEach(sp=>d[sk][sp.id]={owned:false,level:0});
+  });
+  return d;
+}
+function normalizeProfileData(raw){
+  const d=emptyProfileData();
+  Object.keys(SEASONS).forEach(sk=>{
+    if(raw && raw[sk]){
+      Object.entries(raw[sk]).forEach(([id,v])=>{
+        if(d[sk][id]) d[sk][id]={owned:!!(v&&v.owned), level:Math.max(0,Math.min(MAX_LVL,+(v&&v.level)||0))};
+      });
+    }
+  });
+  return d;
+}
+function b64utf8(str){
+  return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,(_,p)=>String.fromCharCode('0x'+p)));
+}
+function b64decodeUtf8(b64){
+  return decodeURIComponent(Array.prototype.map.call(atob(b64.replace(/\n/g,'')), c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+}
+// Reads go through the Contents API (api.github.com), NOT raw.githubusercontent.com.
+// raw.* is a CDN edge cache of blob content and can serve a stale copy for
+// several minutes after a push — no client-side cache header defeats that,
+// since the staleness lives on GitHub's CDN, not the browser. The Contents
+// API reflects live repo state, which is why it was already safe to use for
+// the pre-save sha check. As a bonus, this read also returns the current
+// sha "for free," saving a GET later if this same browser goes on to save
+// this profile's file.
+async function fetchProfileRemote(p){
+  const token = localStorage.getItem(tokenKey(activeProfile)) || localStorage.getItem(tokenKey(otherProfile())) || null;
+  const headers = {Accept:'application/vnd.github+json'};
+  if(token) headers.Authorization = 'Bearer '+token; // optional — public repo reads work without one, just lower rate limit
+  try{
+    const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${PROFILES[p].file}?ref=${GH_BRANCH}`, {cache:'no-store', headers});
+    if(res.status===404) return {data: emptyProfileData(), sha: null}; // profile never saved yet
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const j = await res.json();
+    const parsed = JSON.parse(b64decodeUtf8(j.content));
+    return {data: normalizeProfileData(parsed), sha: j.sha};
+  }catch(e){
+    console.warn('Remote profile fetch failed for',p,e);
+    return null; // signals "fall back" to caller — never treated as truth
+  }
+}
+async function loadProfile(p){
+  const remote = await fetchProfileRemote(p);
+  if(remote){
+    rememberSha(p, remote.sha);
+    try{localStorage.setItem(cacheKey(p), JSON.stringify(remote.data));}catch(e){}
+    return remote.data;
+  }
+  // Live read failed outright (network/rate-limit) — prefer our own last
+  // confirmed-good local cache over guessing, rather than ever substituting
+  // possibly-stale data silently.
+  try{
+    const c=localStorage.getItem(cacheKey(p));
+    if(c) return normalizeProfileData(JSON.parse(c));
+  }catch(e){}
+  return emptyProfileData();
+}
+async function ghGetSha(path, token){
+  // cache:'no-store' is load-bearing — without it the browser can silently
+  // serve a STALE cached response for this GET, handing back a sha from
+  // before a just-completed save. That alone is enough to 409 on back-to-
+  // back saves even though nothing actually raced on GitHub's end.
+  const res=await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}?ref=${GH_BRANCH}`,{
+    cache:'no-store',
+    headers:{Authorization:'Bearer '+token, Accept:'application/vnd.github+json'}
+  });
+  if(res.status===404) return null;
+  if(!res.ok) throw new Error('sha fetch failed: '+res.status);
+  return (await res.json()).sha;
+}
+// Serialized, retrying save. GitHub's Contents API uses the file's `sha` as an
+// optimistic-concurrency token — a write is rejected with 409 if the sha has
+// moved since it was read. That only happens here if two saves for the SAME
+// profile's file are ever in flight at once (e.g. a slow network response
+// overlapping the next debounced save, or the same profile open in two tabs).
+// Fix: never let more than one save run at a time per profile — if a change
+// comes in while one is in flight, just flag "run again" and the in-flight
+// save re-runs itself once more with the latest data when it finishes. Each
+// individual attempt also retries a few times with backoff before giving up.
+const _saveInFlight = {rob:false, tro:false};
+const _saveAgain    = {rob:false, tro:false};
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+// Remembers each profile's last-known file sha so a normal save doesn't need
+// a GET at all — we already know what sha our own last successful write left
+// behind. This sidesteps caching/propagation quirks on the GET endpoint
+// entirely for the common case; we only fall back to a fresh GET when a PUT
+// actually comes back 409 (meaning our cached guess really was wrong).
+const shaKeyLS = p => 'fnSprites_ghSha_'+p;
+const _knownSha = {
+  rob: localStorage.getItem(shaKeyLS('rob')) || undefined,
+  tro: localStorage.getItem(shaKeyLS('tro')) || undefined,
+};
+function rememberSha(p, sha){
+  _knownSha[p]=sha;
+  try{ sha ? localStorage.setItem(shaKeyLS(p),sha) : localStorage.removeItem(shaKeyLS(p)); }catch(e){}
+}
+
+async function saveProfileRemote(p){
+  if(_saveInFlight[p]){ _saveAgain[p]=true; return; } // already saving — ride along on its next pass
+  const token=localStorage.getItem(tokenKey(p));
+  if(!token){ setSyncStatus('no-token'); return; }
+
+  _saveInFlight[p]=true;
+  setSyncStatus('saving');
+  const path=PROFILES[p].file;
+  const putOnce = async (sha) => {
+    const body={message:`Update ${p} sprite progress`, content:b64utf8(JSON.stringify(profileData[p],null,2)), branch:GH_BRANCH};
+    if(sha) body.sha=sha;
+    return fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`,{
+      method:'PUT',
+      headers:{Authorization:'Bearer '+token, Accept:'application/vnd.github+json','Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+  };
+
+  const MAX_ATTEMPTS=4, BACKOFF=[300,700,1500];
+  let ok=false, lastErr=null;
+  // First attempt trusts our cached sha (no network read needed). Only a 409
+  // — a genuine conflict — makes us pay for a fresh GET, from then on.
+  let sha = (_knownSha[p]!==undefined) ? _knownSha[p] : await ghGetSha(path, token);
+  for(let attempt=0; attempt<MAX_ATTEMPTS && !ok; attempt++){
+    try{
+      const res=await putOnce(sha);
+      if(res.ok){
+        ok=true;
+        const j=await res.json().catch(()=>null);
+        rememberSha(p, j && j.content && j.content.sha || null);
+        break;
+      }
+      if(res.status===409){ // our cached sha was wrong — resync and retry
+        lastErr=new Error('409 conflict');
+        if(attempt<MAX_ATTEMPTS-1){
+          await sleep(BACKOFF[attempt]||1500);
+          sha = await ghGetSha(path, token);
+        }
+        continue;
+      }
+      lastErr=new Error('save failed: '+res.status);
+      break; // non-409 failure (auth, rate-limit, network) — don't keep hammering
+    }catch(e){ lastErr=e; break; }
+  }
+
+  _saveInFlight[p]=false;
+  if(ok){
+    setSyncStatus('saved');
+  }else{
+    console.error('GitHub save failed for',p,lastErr);
+    setSyncStatus('error');
+    rememberSha(p, undefined); // don't trust our cached guess next time — force a fresh GET
+  }
+  if(_saveAgain[p]){ _saveAgain[p]=false; saveProfileRemote(p); } // more changes arrived mid-save — run once more
+}
+let _saveTimer=null;
+function queueSave(){
+  try{localStorage.setItem(cacheKey(activeProfile), JSON.stringify(profileData[activeProfile]));}catch(e){}
+  clearTimeout(_saveTimer);
+  setSyncStatus('pending');
+  _saveTimer=setTimeout(()=>saveProfileRemote(activeProfile), 2500);
+}
+function retrySaveNow(){ if(syncStatus==='error') saveProfileRemote(activeProfile); }
+function setSyncStatus(s){
+  syncStatus=s;
+  const el=document.getElementById('syncStatus'); if(!el) return;
+  const map={
+    idle:'', loading:'Loading…', pending:'Unsaved changes…', saving:'Saving to GitHub…',
+    saved:'Synced ✓', error:'Save failed — tap to retry',
+    'no-token':'Not connected — add a token in Settings'
+  };
+  el.textContent = map[s] || '';
+  el.className = 'sync-status sync-'+s;
+  el.style.cursor = s==='error' ? 'pointer' : 'default';
+}
+function rebuildStateFromProfiles(){
+  const other = otherProfile();
+  state = {};
+  Object.keys(SEASONS).forEach(sk=>{
+    state[sk]={};
+    SEASONS[sk].SPRITES.forEach(sp=>{
+      const mine = (profileData[activeProfile] && profileData[activeProfile][sk][sp.id]) || {owned:false,level:0};
+      const tm   = (profileData[other]        && profileData[other][sk][sp.id])        || {owned:false,level:0};
+      state[sk][sp.id] = {owned:mine.owned, level:mine.level, tmOwned: !!tm.owned};
+    });
+  });
+}
+function applyProfileUI(){
+  document.body.dataset.profile = activeProfile;
+  document.getElementById('profBtnRob').classList.toggle('on', activeProfile==='rob');
+  document.getElementById('profBtnTro').classList.toggle('on', activeProfile==='tro');
+  const lbl=document.getElementById('ghProfileLabel'); if(lbl) lbl.textContent=PROFILES[activeProfile].label;
+  document.getElementById('tmChipLabel').textContent = PROFILES[otherProfile()].label;
+  const hasToken = !!localStorage.getItem(tokenKey(activeProfile));
+  setSyncStatus(hasToken ? syncStatus : 'no-token');
+  refreshTokenUI();
+}
+function refreshTokenUI(){
+  const line=document.getElementById('ghStatusLine');
+  const input=document.getElementById('ghTokenInput');
+  if(!line||!input) return;
+  const has = !!localStorage.getItem(tokenKey(activeProfile));
+  line.textContent = has ? 'Connected — '+PROFILES[activeProfile].label+'\u2019s changes will save to GitHub' : 'Not connected — changes stay on this device only';
+  input.value='';
+  input.placeholder = has ? '•••••••••••••••• (connected)' : 'github_pat_...';
+}
+function saveToken(){
+  const v=document.getElementById('ghTokenInput').value.trim();
+  if(!v){toast('Paste a token first');return;}
+  localStorage.setItem(tokenKey(activeProfile), v);
+  refreshTokenUI();
+  setSyncStatus('saved');
+  toast('Connected ✅ — '+PROFILES[activeProfile].label+' will now sync to GitHub');
+}
+function clearToken(){
+  localStorage.removeItem(tokenKey(activeProfile));
+  refreshTokenUI();
+  setSyncStatus('no-token');
+  toast('Disconnected on this device');
+}
+async function switchProfile(p){
+  if(p===activeProfile) return;
+  activeProfile=p;
+  localStorage.setItem(PKEY,p);
+  applyProfileUI();
+  setSyncStatus('loading');
+  // Pull the freshest copy of both profiles so the new "teammate" view is current.
+  const [a,b]=await Promise.all([loadProfile('rob'), loadProfile('tro')]);
+  profileData.rob=a; profileData.tro=b;
+  rebuildStateFromProfiles();
+  setSyncStatus('idle'); // clear "Loading…" — applyProfileUI() below just redisplays whatever this currently says
+  applyProfileUI();
+  render();
+}
+
+const APP_VER='2.4.4', MAX_LVL=5, SKEY='fnSprites_settings_v1';
+const RC={rare:'#4a90d9',epic:'#b263f5',legendary:'#f0a132',mythic:'#ff6b35',special:'#43b89c'};
+const RO={mythic:0,legendary:1,epic:2,rare:3,special:4};
+const CHKSVG=`<svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5l3 3 5-5"/></svg>`;
+const CARD_W=148, CARD_GAP=8, GROUP_GAP=16;
+
+let curSeason = 's4';
+let state     = {};  // keyed by season: state.s3, state.s4
+let settings  = loadSettings();
+let F         = {own:'all', var:'All'};
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+// "Mine" (owned/level) lives in profileData[activeProfile] and is the only
+// part this browser can write. "Teammate" (tmOwned) is read live from the
+// OTHER profile's data and is never written from here — see rebuildStateFromProfiles().
+function saveSeason(sk) {
+  if(!profileData[activeProfile]) return;
+  Object.keys(state[sk]).forEach(id=>{
+    if(!profileData[activeProfile][sk][id]) profileData[activeProfile][sk][id]={owned:false,level:0};
+    profileData[activeProfile][sk][id].owned = state[sk][id].owned;
+    profileData[activeProfile][sk][id].level = state[sk][id].level;
+  });
+  queueSave();
+}
+function ens(sk, id) {
+  if(!state[sk]) state[sk]={};
+  if(!state[sk][id]) state[sk][id]={owned:false,level:0,tmOwned:false};
+  if(state[sk][id].tmOwned===undefined) state[sk][id].tmOwned=false;
+}
+function loadSettings(){
+  let s={tmEnabled:true,showProgress:true,layoutMode:'classic'};
+  try{const r=localStorage.getItem(SKEY);if(r)s=Object.assign(s,JSON.parse(r));}catch(e){}
+  s.tmEnabled=true; // teammate view is always on now — no longer a user toggle, regardless of older saved settings
+  return s;
+}
+function saveSettings(){localStorage.setItem(SKEY,JSON.stringify(settings));}
+function applyLayoutMode(){
+  const mode=settings.layoutMode==='dynamic'?'dynamic':'classic';
+  document.body.classList.toggle('dynamic-mode',mode==='dynamic');
+  document.getElementById('layoutClassic')?.classList.toggle('on',mode==='classic');
+  document.getElementById('layoutDynamic')?.classList.toggle('on',mode==='dynamic');
+}
+function setLayoutMode(mode){
+  settings.layoutMode=mode==='dynamic'?'dynamic':'classic';
+  saveSettings();
+  applyLayoutMode();
+  render();
+}
+
+async function initState(){
+  setSyncStatus('loading');
+  const [robData, troData] = await Promise.all([loadProfile('rob'), loadProfile('tro')]);
+  profileData.rob = robData;
+  profileData.tro = troData;
+  rebuildStateFromProfiles();
+  Object.keys(SEASONS).forEach(sk=>{
+    SEASONS[sk].SPRITES.forEach(sp=>ens(sk,sp.id));
+  });
+  setSyncStatus('idle'); // clear "Loading…" — applyProfileUI() below just redisplays whatever this currently says
+  applyProfileUI();
+}
+
+// ── SEASON SWITCH ──────────────────────────────────────────────────────────
+function switchSeason(sk){
+  curSeason = sk;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab'+sk.toUpperCase()).classList.add('active');
+  // Reset filters
+  F = {own:'all', var:'All'};
+  document.querySelectorAll('#showPills .pill').forEach(p=>p.classList.remove('on','on-tm'));
+  document.querySelector('#showPills .pill[data-own="all"]').classList.add('on');
+  document.getElementById('srch').value='';
+  updateSearchClearBtn();
+  buildVariantPills();
+  render();
+}
+
+function buildVariantPills(){
+  const vars = SEASONS[curSeason].variants;
+  const pg = document.getElementById('varPills');
+  pg.innerHTML = '';
+  vars.forEach(v=>{
+    const b=document.createElement('button');
+    b.className='pill'+(v==='All'?' on':'');
+    b.textContent=v;
+    b.onclick=()=>setF('var',v,b);
+    pg.appendChild(b);
+  });
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────
+function openSettings(){
+  refreshTokenUI();
+  document.getElementById('settingsModal').classList.add('open');
+}
+function closeSettings(){document.getElementById('settingsModal').classList.remove('open');}
+function applyTmUI(){
+  // Teammate tracking is always on now — it's just "whichever profile isn't active".
+  const name=PROFILES[otherProfile()].label;
+  document.getElementById('tmChip').style.display='flex';
+  document.getElementById('tmChipLabel').textContent=name;
+  const tmMiss=document.getElementById('tmMissingPill');
+  tmMiss.style.display='';
+  tmMiss.textContent=name+' Missing';
+  const iHave=document.getElementById('iHaveTmNotPill');
+  iHave.style.display='';
+  iHave.textContent='I Have, '+name+' Doesn’t';
+  const tmHas=document.getElementById('tmHasINotPill');
+  tmHas.style.display='';
+  tmHas.textContent=name+' Has, I Don’t';
+}
+
+// ── LAYOUT HELPERS ─────────────────────────────────────────────────────────
+function groupMinWidth(n){return n*CARD_W+(n-1)*CARD_GAP;}
+function packGroups(groups, availWidth){
+  const rows=[];let i=0;
+  while(i<groups.length){
+    const row=[];let used=0;
+    while(i<groups.length){
+      const minW=groupMinWidth(groups[i].sprites.length);
+      const needed=row.length===0?minW:minW+GROUP_GAP;
+      if(row.length===0||used+needed<=availWidth){used+=needed;row.push(groups[i]);i++;}
+      else break;
+    }
+    rows.push(row);
+  }
+  return rows;
+}
+
+// Missing views are sparse: category widths change with ownership, so the
+// normal type order can leave avoidable holes at the end of rows.  Reorder
+// whole category groups using best-fit decreasing so each row is packed more
+// tightly while keeping every category together.  Ties retain the normal
+// category order for a stable UI.
+function packGroupsForMissing(groups, availWidth){
+  const sorted=groups.map((g,i)=>({g,i,w:groupMinWidth(g.sprites.length)}))
+    .sort((a,b)=>b.w-a.w||a.i-b.i);
+  const rows=[];
+  sorted.forEach(item=>{
+    let best=-1,bestRemaining=Infinity;
+    rows.forEach((r,idx)=>{
+      const needed=item.w+(r.groups.length?GROUP_GAP:0);
+      const remaining=availWidth-(r.used+needed);
+      if(remaining>=0 && remaining<bestRemaining){best=idx;bestRemaining=remaining;}
+    });
+    if(best<0){
+      rows.push({groups:[item.g],used:item.w});
+    }else{
+      const r=rows[best];
+      r.groups.push(item.g);
+      r.used+=item.w+GROUP_GAP;
+    }
+  });
+  return rows.map(r=>r.groups);
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────
+function onSearchInput(){ updateSearchClearBtn(); render(); }
+function updateSearchClearBtn(){
+  document.getElementById('srchWrap').classList.toggle('has-val', !!document.getElementById('srch').value);
+}
+function clearSearch(){
+  const el=document.getElementById('srch');
+  if(!el.value) return;
+  el.value='';
+  updateSearchClearBtn();
+  el.focus();
+  render();
+}
+function render(){
+  const sk=curSeason, season=SEASONS[sk];
+  const SPRITES=season.SPRITES, TI=season.TI;
+  const pinnedLast=season.pinnedLast;
+  const own=F.own, vnt=F.var, srt=document.getElementById('srt').value;
+  const q=document.getElementById('srch').value.trim().toLowerCase();
+  const isFiltered=(own!=='all'||vnt!=='All'||q.length>0);
+
+  let list=SPRITES.filter(sp=>{
+    ens(sk,sp.id);
+    const s=state[sk][sp.id];
+    if(own==='owned'         &&!s.owned)                           return false;
+    if(own==='missing'       && s.owned)                           return false;
+    if(own==='tm-missing'    &&(s.tmOwned||!settings.tmEnabled))   return false;
+    if(own==='i-have-tm-not' &&(!s.owned||s.tmOwned||!settings.tmEnabled))  return false;
+    if(own==='tm-has-i-not'  &&(!s.tmOwned||s.owned||!settings.tmEnabled))  return false;
+    if(vnt!=='All'           && sp.variant!==vnt)                  return false;
+    if(q&&!sp.name.toLowerCase().includes(q)&&!sp.type.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  if(srt==='rarity') list.sort((a,b)=>(RO[a.rarity]??9)-(RO[b.rarity]??9)||a.name.localeCompare(b.name));
+  else if(srt==='name') list.sort((a,b)=>a.name.localeCompare(b.name));
+
+  const container=document.getElementById('main');
+  container.innerHTML='';
+  if(!list.length){
+    container.innerHTML='<div class="empty"><h3>No sprites found</h3><p>Try adjusting your filters.</p></div>';
+    updStats();return;
+  }
+
+  const typeOrder=[...new Set(SPRITES.map(s=>s.type))].filter(t=>!pinnedLast.includes(t));
+  pinnedLast.forEach(t=>typeOrder.push(t));
+  const groupList=[];
+  typeOrder.forEach(t=>{
+    const g=list.filter(sp=>sp.type===t);
+    if(g.length) groupList.push({type:t,sprites:g});
+  });
+
+  const availWidth=container.clientWidth||1350;
+
+  if(!isFiltered){
+    // All: natural widths — each group gets exactly enough width for its cards on one line
+    const rows=packGroups(groupList,availWidth);
+    rows.forEach(row=>{
+      const rowDiv=document.createElement('div');rowDiv.className='row-wrap';
+      row.forEach(({type:t,sprites:g})=>{
+        const natW=groupMinWidth(g.length);
+        const sec=buildGroup(sk,t,g,natW,TI,false);
+        rowDiv.appendChild(sec);
+      });
+      container.appendChild(rowDiv);
+    });
+  } else {
+    // Filtered: natural widths, no internal wrap. Missing is sparse, so
+    // dynamically repack its category groups to minimize row waste.
+    const rows=own==='missing' ? packGroupsForMissing(groupList,availWidth) : packGroups(groupList,availWidth);
+    rows.forEach(row=>{
+      const rowDiv=document.createElement('div');rowDiv.className='row-wrap';
+      row.forEach(({type:t,sprites:g})=>{
+        const natW=groupMinWidth(g.length);
+        const sec=buildGroup(sk,t,g,natW,TI,false);
+        rowDiv.appendChild(sec);
+      });
+      container.appendChild(rowDiv);
+    });
+  }
+
+  updStats();
+}
+
+function buildGroup(sk,t,g,groupW,TI,allowWrap){
+  const oc=g.filter(s=>state[sk][s.id]?.owned).length;
+  const toc=g.filter(s=>state[sk][s.id]?.tmOwned).length;
+  const tid='tp_'+sk+'_'+t.replace(/[^a-z0-9]/gi,'_');
+  const sec=document.createElement('div');
+  sec.className='tg';sec.style.width=groupW+'px';sec.style.flexShrink='0';
+  let prog='';
+  if(settings.showProgress!==false){
+    prog=`<div class="tp ${oc===g.length?'done':'part'}" id="${tid}">Me: ${oc}/${g.length}`;
+    prog+=` &nbsp;|&nbsp; ${PROFILES[otherProfile()].label}: ${toc}/${g.length}`;
+    prog+=`</div>`;
+  } else {
+    prog=`<div id="${tid}" style="display:none"></div>`;
+  }
+  sec.innerHTML=`<div class="th"><div class="th-top"><div class="tn">${TI[t]||'👾'} ${t}</div><div class="tc">${g.length} variants</div></div>${prog}</div>`;
+  const grd=document.createElement('div');
+  grd.className='grid';
+  grd.style.width=groupW+'px';
+  if(!allowWrap) grd.style.flexWrap='nowrap';
+  g.forEach(sp=>grd.appendChild(mkCard(sk,sp)));
+  sec.appendChild(grd);
+  return sec;
+}
+
+function mkCard(sk,sp){
+  ens(sk,sp.id);
+  const s=state[sk][sp.id], c=RC[sp.rarity]||'#666';
+  const tmName=PROFILES[otherProfile()].label;
+  const lbl=tmName.length>5?tmName.slice(0,5)+'…':tmName;
+  let cls='card';
+  if(s.owned) cls+=' own';
+  if(s.tmOwned) cls+=' tm-owned';
+  if(!s.owned&&s.tmOwned) cls+=' tm-only';
+  const card=document.createElement('div');
+  card.className=cls;card.dataset.id=sp.id;card.dataset.sk=sk;
+  card.style.setProperty('--rc',c);
+  // Teammate checkbox is always shown but read-only — it mirrors the OTHER
+  // profile's own GitHub-synced data and can only be changed from their side.
+  const cbRow=`<div class="cr"><div class="cb-wrap"><div class="cb mine">${CHKSVG}</div><div class="cb-lbl">Me</div></div>${sp.starter?'<span class="st">Start</span>':'<span></span>'}<div class="cb-wrap" title="${tmName}'s own tracker — read-only here"><div class="cb teammate readonly">${CHKSVG}</div><div class="cb-lbl">${lbl}</div></div></div>`;
+  card.innerHTML=`
+    <div class="ob">✓</div>
+    <div class="ob-tm">✓</div>
+    <div class="iw"><img class="img" src="${spriteURL(sk,sp)}" alt="${sp.name}" loading="lazy"></div>
+    <div class="nm">${sp.name}</div>
+    <div class="meta"><span class="rb" style="background:${c}">${sp.rarity}</span><span class="dr">${sp.drop}</span></div>
+    <div class="lr"><span class="ll">Lvl</span>
+      <div class="lc">
+        <button class="lb" onclick="chgLvl(event,'${sk}',${sp.id},-1)" ${s.level<=0?'disabled':''}>−</button>
+        <span class="lv" id="lv_${sk}_${sp.id}">${s.level}</span>
+        <button class="lb" onclick="chgLvl(event,'${sk}',${sp.id},+1)" ${s.level>=MAX_LVL?'disabled':''}>+</button>
+      </div>
+    </div>
+    ${cbRow}`;
+  card.addEventListener('click',e=>{
+    if(e.target.closest('.lb'))return;
+    if(e.target.closest('.cb.teammate')){toast(tmName+'\u2019s own tracker \u2014 switch profiles to edit it');return;}
+    toggleMine(sk,sp.id,card);
+  });
+  return card;
+}
+
+function toggleMine(sk,id,card){ens(sk,id);state[sk][id].owned=!state[sk][id].owned;updCardCls(card,sk,id);saveSeason(sk);updStats();updHeaders();}
+function updCardCls(card,sk,id){
+  const s=state[sk][id];
+  card.classList.toggle('own',s.owned);
+  card.classList.toggle('tm-owned',s.tmOwned);
+  card.classList.toggle('tm-only',!s.owned&&s.tmOwned);
+}
+function chgLvl(e,sk,id,d){
+  e.stopPropagation();ens(sk,id);
+  const nv=Math.max(0,Math.min(MAX_LVL,state[sk][id].level+d));
+  state[sk][id].level=nv;
+  if(nv>0&&!state[sk][id].owned){state[sk][id].owned=true;updCardCls(e.target.closest('.card'),sk,id);}
+  document.getElementById('lv_'+sk+'_'+id).textContent=nv;
+  const bs=e.target.closest('.lc').querySelectorAll('.lb');
+  bs[0].disabled=nv<=0;bs[1].disabled=nv>=MAX_LVL;
+  saveSeason(sk);updStats();updHeaders();
+}
+function updHeaders(){
+  const sk=curSeason;
+  document.querySelectorAll('.tg').forEach(grp=>{
+    const cards=grp.querySelectorAll('.card');
+    const tot=cards.length;
+    const oc=[...cards].filter(c=>c.classList.contains('own')).length;
+    const toc=[...cards].filter(c=>c.classList.contains('tm-owned')).length;
+    const tn=grp.querySelector('.tn')?.textContent?.replace(/^../,'').trim()||'';
+    const el=document.getElementById('tp_'+sk+'_'+tn.replace(/[^a-z0-9]/gi,'_'));
+    if(!el)return;
+    if(settings.showProgress===false){el.style.display='none';return;}
+    el.style.display='';
+    let txt='Me: '+oc+'/'+tot;
+    txt+=' &nbsp;|&nbsp; '+PROFILES[otherProfile()].label+': '+toc+'/'+tot;
+    el.innerHTML=txt;
+    el.className='tp '+(oc===tot?'done':'part');
+  });
+}
+function updStats(){
+  const sk=curSeason, SPRITES=SEASONS[sk].SPRITES;
+  const total=SPRITES.length;
+  const oc=SPRITES.filter(sp=>state[sk][sp.id]?.owned).length;
+  const tc=SPRITES.filter(sp=>state[sk][sp.id]?.tmOwned).length;
+  const tl=SPRITES.reduce((s,sp)=>s+(state[sk][sp.id]?.level||0),0);
+  document.getElementById('sOwn').textContent=oc;
+  document.getElementById('sTotal').textContent=total;
+  document.getElementById('sLvl').textContent=tl;
+  document.getElementById('sMaxLvl').textContent=total*MAX_LVL;
+  document.getElementById('sTm').textContent=tc;
+  document.getElementById('sTmTotal').textContent=total;
+  document.getElementById('sPct').textContent=Math.round(oc/total*100)+'%';
+  document.getElementById('pf').style.width=Math.round(oc/total*100)+'%';
+}
+function setF(k,v,btn){
+  F[k]=v;
+  btn.closest('.pg').querySelectorAll('.pill').forEach(p=>p.classList.remove('on','on-tm'));
+  const tmStyled=['tm-missing','i-have-tm-not','tm-has-i-not'].includes(v);
+  btn.classList.add(tmStyled?'on-tm':'on');
+  render();
+}
+
+// ── EXPORT / IMPORT ────────────────────────────────────────────────────────
+function openExport(){document.getElementById('exportModal').classList.add('open');}
+function closeExport(){document.getElementById('exportModal').classList.remove('open');}
+// NOTE: Teammate data now syncs live from GitHub (whichever profile isn't
+// active), so export/import only ever deals with YOUR OWN ("mine") data —
+// these are personal backups, not a way to share progress with each other.
+function doExport(type){
+  closeExport();
+  const sk=curSeason, SPRITES=SEASONS[sk].SPRITES;
+  const date=new Date().toISOString().slice(0,10);
+  const who=PROFILES[activeProfile].label;
+  let data, filename;
+  if(type==='mine'){
+    const mine={};SPRITES.forEach(sp=>{ens(sk,sp.id);mine[sp.id]={owned:state[sk][sp.id].owned,level:state[sk][sp.id].level};});
+    data={version:APP_VER,exportType:'mine',profile:activeProfile,season:sk,savedAt:new Date().toISOString(),sprites:mine};
+    filename='fortnite-sprites-'+sk+'-'+activeProfile+'-'+date+'.json';
+  }else{
+    data={version:APP_VER,exportType:'all',profile:activeProfile,savedAt:new Date().toISOString(),sprites:{s3:profileData[activeProfile].s3,s4:profileData[activeProfile].s4},settings};
+    filename='fortnite-sprites-all-'+activeProfile+'-'+date+'.json';
+  }
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;a.click();
+  toast('Exported '+who+'\u2019s '+(type==='mine'?'sprites':'full backup')+' \u2705');
+}
+function importData(){document.getElementById('ifile').click();}
+function handleImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(!d.sprites){toast('Import failed \u2013 invalid file');return;}
+      const exportType=d.exportType||'all';
+
+      // v1.x exports have no 'season' field and version < 2 — always map to S3
+      const isV1 = !d.season && (!d.version || !String(d.version).startsWith('2'));
+      const sk = isV1 ? 's3' : (d.season||curSeason);
+
+      if(exportType==='mine'){
+        Object.entries(d.sprites).forEach(([id,v])=>{ens(sk,id);state[sk][id].owned=v.owned??state[sk][id].owned;state[sk][id].level=v.level??state[sk][id].level;});
+        SEASONS[sk].SPRITES.forEach(sp=>ens(sk,sp.id));
+        saveSeason(sk);render();toast('Imported into '+PROFILES[activeProfile].label+'\u2019s '+SEASONS[sk].label+' \u2705');
+      }else{
+        // 'all' — v2.x has {s3,s4}, v1.x is a flat sprites object. Always
+        // merges into the ACTIVE profile's own data, never the teammate's.
+        const incoming = (d.sprites.s3||d.sprites.s4) ? d.sprites : {s3:d.sprites};
+        Object.keys(incoming).forEach(sk2=>{
+          if(!SEASONS[sk2]) return;
+          Object.entries(incoming[sk2]).forEach(([id,v])=>{
+            if(!profileData[activeProfile][sk2][id]) return;
+            profileData[activeProfile][sk2][id]={owned:!!v.owned, level:Math.max(0,Math.min(MAX_LVL,+v.level||0))};
+          });
+        });
+        rebuildStateFromProfiles();
+        queueSave();
+        if(d.settings){settings=Object.assign(loadSettings(),d.settings);saveSettings();}
+        applyLayoutMode();applyTmUI();render();toast('Imported into '+PROFILES[activeProfile].label+'\u2019s full backup \u2705');
+      }
+    }catch(err){toast('Import failed \u2013 invalid file');}
+    e.target.value='';
+  };
+  reader.readAsText(file);
+}
+function resetAll(){
+  const sk=curSeason;
+  if(!confirm('Reset '+PROFILES[activeProfile].label+'\u2019s '+SEASONS[sk].label+' progress? Settings are kept.'))return;
+  SEASONS[sk].SPRITES.forEach(sp=>{state[sk][sp.id].owned=false; state[sk][sp.id].level=0;});
+  saveSeason(sk);render();toast('Reset complete');
+}
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2700);
+}
+window.addEventListener('resize',()=>{clearTimeout(window._rt);window._rt=setTimeout(render,150);});
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+async function boot(){
+  applyProfileUI(); // paint the right theme + pill state immediately, before network resolves
+  applyLayoutMode();
+  buildVariantPills();
+  // Default to S4 tab
+  document.getElementById('tabS3').classList.remove('active');
+  document.getElementById('tabS4').classList.add('active');
+  await initState(); // fetches both profiles from GitHub (or cache), builds `state`
+  applyTmUI();
+  render();
+}
+boot();
+</script>
+</body>
+</html>
