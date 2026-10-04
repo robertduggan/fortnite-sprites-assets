@@ -1,1 +1,1054 @@
-
+{
+  "s3": {
+    "1": {
+      "owned": false,
+      "level": 0
+    },
+    "2": {
+      "owned": false,
+      "level": 0
+    },
+    "3": {
+      "owned": false,
+      "level": 0
+    },
+    "4": {
+      "owned": false,
+      "level": 0
+    },
+    "5": {
+      "owned": false,
+      "level": 0
+    },
+    "6": {
+      "owned": false,
+      "level": 0
+    },
+    "7": {
+      "owned": false,
+      "level": 0
+    },
+    "8": {
+      "owned": false,
+      "level": 0
+    },
+    "9": {
+      "owned": false,
+      "level": 0
+    },
+    "10": {
+      "owned": false,
+      "level": 0
+    },
+    "11": {
+      "owned": false,
+      "level": 0
+    },
+    "12": {
+      "owned": false,
+      "level": 0
+    },
+    "13": {
+      "owned": false,
+      "level": 0
+    },
+    "14": {
+      "owned": false,
+      "level": 0
+    },
+    "15": {
+      "owned": false,
+      "level": 0
+    },
+    "16": {
+      "owned": false,
+      "level": 0
+    },
+    "17": {
+      "owned": false,
+      "level": 0
+    },
+    "18": {
+      "owned": false,
+      "level": 0
+    },
+    "19": {
+      "owned": false,
+      "level": 0
+    },
+    "20": {
+      "owned": false,
+      "level": 0
+    },
+    "21": {
+      "owned": false,
+      "level": 0
+    },
+    "22": {
+      "owned": false,
+      "level": 0
+    },
+    "23": {
+      "owned": false,
+      "level": 0
+    },
+    "24": {
+      "owned": false,
+      "level": 0
+    },
+    "25": {
+      "owned": false,
+      "level": 0
+    },
+    "26": {
+      "owned": false,
+      "level": 0
+    },
+    "27": {
+      "owned": false,
+      "level": 0
+    },
+    "28": {
+      "owned": false,
+      "level": 0
+    },
+    "29": {
+      "owned": false,
+      "level": 0
+    },
+    "30": {
+      "owned": false,
+      "level": 0
+    },
+    "31": {
+      "owned": false,
+      "level": 0
+    },
+    "32": {
+      "owned": false,
+      "level": 0
+    },
+    "33": {
+      "owned": false,
+      "level": 0
+    },
+    "34": {
+      "owned": false,
+      "level": 0
+    },
+    "35": {
+      "owned": false,
+      "level": 0
+    },
+    "36": {
+      "owned": false,
+      "level": 0
+    },
+    "37": {
+      "owned": false,
+      "level": 0
+    },
+    "38": {
+      "owned": false,
+      "level": 0
+    },
+    "39": {
+      "owned": false,
+      "level": 0
+    },
+    "40": {
+      "owned": false,
+      "level": 0
+    },
+    "41": {
+      "owned": false,
+      "level": 0
+    },
+    "49": {
+      "owned": false,
+      "level": 0
+    },
+    "50": {
+      "owned": false,
+      "level": 0
+    },
+    "51": {
+      "owned": false,
+      "level": 0
+    },
+    "52": {
+      "owned": false,
+      "level": 0
+    },
+    "58": {
+      "owned": false,
+      "level": 0
+    },
+    "59": {
+      "owned": false,
+      "level": 0
+    },
+    "60": {
+      "owned": false,
+      "level": 0
+    },
+    "61": {
+      "owned": false,
+      "level": 0
+    },
+    "62": {
+      "owned": false,
+      "level": 0
+    },
+    "63": {
+      "owned": false,
+      "level": 0
+    },
+    "64": {
+      "owned": false,
+      "level": 0
+    },
+    "65": {
+      "owned": false,
+      "level": 0
+    },
+    "67": {
+      "owned": false,
+      "level": 0
+    },
+    "68": {
+      "owned": false,
+      "level": 0
+    },
+    "69": {
+      "owned": false,
+      "level": 0
+    },
+    "71": {
+      "owned": false,
+      "level": 0
+    },
+    "78": {
+      "owned": false,
+      "level": 0
+    },
+    "79": {
+      "owned": false,
+      "level": 0
+    },
+    "80": {
+      "owned": false,
+      "level": 0
+    },
+    "81": {
+      "owned": false,
+      "level": 0
+    },
+    "83": {
+      "owned": false,
+      "level": 0
+    },
+    "84": {
+      "owned": false,
+      "level": 0
+    },
+    "85": {
+      "owned": false,
+      "level": 0
+    },
+    "86": {
+      "owned": false,
+      "level": 0
+    },
+    "87": {
+      "owned": false,
+      "level": 0
+    },
+    "88": {
+      "owned": false,
+      "level": 0
+    },
+    "89": {
+      "owned": false,
+      "level": 0
+    },
+    "90": {
+      "owned": false,
+      "level": 0
+    },
+    "91": {
+      "owned": false,
+      "level": 0
+    },
+    "92": {
+      "owned": false,
+      "level": 0
+    },
+    "93": {
+      "owned": false,
+      "level": 0
+    },
+    "94": {
+      "owned": false,
+      "level": 0
+    },
+    "95": {
+      "owned": false,
+      "level": 0
+    },
+    "96": {
+      "owned": false,
+      "level": 0
+    },
+    "97": {
+      "owned": false,
+      "level": 0
+    },
+    "98": {
+      "owned": false,
+      "level": 0
+    },
+    "99": {
+      "owned": false,
+      "level": 0
+    },
+    "100": {
+      "owned": false,
+      "level": 0
+    },
+    "101": {
+      "owned": false,
+      "level": 0
+    },
+    "102": {
+      "owned": false,
+      "level": 0
+    },
+    "103": {
+      "owned": false,
+      "level": 0
+    },
+    "104": {
+      "owned": false,
+      "level": 0
+    },
+    "105": {
+      "owned": false,
+      "level": 0
+    },
+    "106": {
+      "owned": false,
+      "level": 0
+    },
+    "107": {
+      "owned": false,
+      "level": 0
+    },
+    "108": {
+      "owned": false,
+      "level": 0
+    },
+    "109": {
+      "owned": false,
+      "level": 0
+    },
+    "110": {
+      "owned": false,
+      "level": 0
+    },
+    "111": {
+      "owned": false,
+      "level": 0
+    },
+    "112": {
+      "owned": false,
+      "level": 0
+    },
+    "113": {
+      "owned": false,
+      "level": 0
+    },
+    "114": {
+      "owned": false,
+      "level": 0
+    },
+    "115": {
+      "owned": false,
+      "level": 0
+    },
+    "116": {
+      "owned": false,
+      "level": 0
+    },
+    "117": {
+      "owned": false,
+      "level": 0
+    },
+    "118": {
+      "owned": false,
+      "level": 0
+    },
+    "119": {
+      "owned": false,
+      "level": 0
+    },
+    "120": {
+      "owned": false,
+      "level": 0
+    },
+    "121": {
+      "owned": false,
+      "level": 0
+    },
+    "122": {
+      "owned": false,
+      "level": 0
+    },
+    "123": {
+      "owned": false,
+      "level": 0
+    },
+    "124": {
+      "owned": false,
+      "level": 0
+    },
+    "125": {
+      "owned": false,
+      "level": 0
+    },
+    "126": {
+      "owned": false,
+      "level": 0
+    },
+    "127": {
+      "owned": false,
+      "level": 0
+    },
+    "128": {
+      "owned": false,
+      "level": 0
+    },
+    "129": {
+      "owned": false,
+      "level": 0
+    },
+    "130": {
+      "owned": false,
+      "level": 0
+    },
+    "131": {
+      "owned": false,
+      "level": 0
+    },
+    "132": {
+      "owned": false,
+      "level": 0
+    },
+    "133": {
+      "owned": false,
+      "level": 0
+    },
+    "134": {
+      "owned": false,
+      "level": 0
+    },
+    "135": {
+      "owned": false,
+      "level": 0
+    },
+    "136": {
+      "owned": false,
+      "level": 0
+    },
+    "137": {
+      "owned": false,
+      "level": 0
+    },
+    "138": {
+      "owned": false,
+      "level": 0
+    }
+  },
+  "s4": {
+    "200": {
+      "owned": true,
+      "level": 0
+    },
+    "201": {
+      "owned": true,
+      "level": 0
+    },
+    "202": {
+      "owned": true,
+      "level": 0
+    },
+    "203": {
+      "owned": true,
+      "level": 0
+    },
+    "204": {
+      "owned": true,
+      "level": 0
+    },
+    "205": {
+      "owned": true,
+      "level": 0
+    },
+    "206": {
+      "owned": true,
+      "level": 0
+    },
+    "207": {
+      "owned": true,
+      "level": 0
+    },
+    "208": {
+      "owned": true,
+      "level": 0
+    },
+    "209": {
+      "owned": true,
+      "level": 0
+    },
+    "210": {
+      "owned": true,
+      "level": 0
+    },
+    "211": {
+      "owned": true,
+      "level": 0
+    },
+    "212": {
+      "owned": true,
+      "level": 0
+    },
+    "213": {
+      "owned": true,
+      "level": 0
+    },
+    "214": {
+      "owned": true,
+      "level": 0
+    },
+    "215": {
+      "owned": true,
+      "level": 0
+    },
+    "216": {
+      "owned": true,
+      "level": 0
+    },
+    "217": {
+      "owned": true,
+      "level": 0
+    },
+    "218": {
+      "owned": true,
+      "level": 0
+    },
+    "219": {
+      "owned": true,
+      "level": 0
+    },
+    "220": {
+      "owned": false,
+      "level": 0
+    },
+    "221": {
+      "owned": true,
+      "level": 0
+    },
+    "222": {
+      "owned": true,
+      "level": 0
+    },
+    "223": {
+      "owned": false,
+      "level": 0
+    },
+    "224": {
+      "owned": true,
+      "level": 0
+    },
+    "225": {
+      "owned": true,
+      "level": 0
+    },
+    "226": {
+      "owned": false,
+      "level": 0
+    },
+    "227": {
+      "owned": true,
+      "level": 0
+    },
+    "228": {
+      "owned": false,
+      "level": 0
+    },
+    "229": {
+      "owned": false,
+      "level": 0
+    },
+    "230": {
+      "owned": true,
+      "level": 0
+    },
+    "231": {
+      "owned": false,
+      "level": 0
+    },
+    "232": {
+      "owned": true,
+      "level": 0
+    },
+    "233": {
+      "owned": true,
+      "level": 0
+    },
+    "234": {
+      "owned": true,
+      "level": 0
+    },
+    "235": {
+      "owned": false,
+      "level": 0
+    },
+    "236": {
+      "owned": true,
+      "level": 0
+    },
+    "237": {
+      "owned": true,
+      "level": 0
+    },
+    "238": {
+      "owned": true,
+      "level": 0
+    },
+    "239": {
+      "owned": true,
+      "level": 0
+    },
+    "240": {
+      "owned": true,
+      "level": 0
+    },
+    "241": {
+      "owned": true,
+      "level": 0
+    },
+    "242": {
+      "owned": true,
+      "level": 0
+    },
+    "243": {
+      "owned": false,
+      "level": 0
+    },
+    "244": {
+      "owned": false,
+      "level": 0
+    },
+    "245": {
+      "owned": true,
+      "level": 0
+    },
+    "246": {
+      "owned": false,
+      "level": 0
+    },
+    "247": {
+      "owned": true,
+      "level": 0
+    },
+    "248": {
+      "owned": true,
+      "level": 0
+    },
+    "249": {
+      "owned": true,
+      "level": 0
+    },
+    "250": {
+      "owned": true,
+      "level": 0
+    },
+    "251": {
+      "owned": true,
+      "level": 0
+    },
+    "252": {
+      "owned": true,
+      "level": 0
+    },
+    "253": {
+      "owned": true,
+      "level": 0
+    },
+    "254": {
+      "owned": false,
+      "level": 0
+    },
+    "255": {
+      "owned": false,
+      "level": 0
+    },
+    "256": {
+      "owned": true,
+      "level": 0
+    },
+    "257": {
+      "owned": false,
+      "level": 0
+    },
+    "258": {
+      "owned": true,
+      "level": 0
+    },
+    "259": {
+      "owned": false,
+      "level": 0
+    },
+    "260": {
+      "owned": true,
+      "level": 0
+    },
+    "261": {
+      "owned": true,
+      "level": 0
+    },
+    "262": {
+      "owned": true,
+      "level": 0
+    },
+    "263": {
+      "owned": false,
+      "level": 0
+    },
+    "264": {
+      "owned": false,
+      "level": 0
+    },
+    "265": {
+      "owned": true,
+      "level": 0
+    },
+    "266": {
+      "owned": true,
+      "level": 0
+    },
+    "267": {
+      "owned": false,
+      "level": 0
+    },
+    "268": {
+      "owned": false,
+      "level": 0
+    },
+    "269": {
+      "owned": false,
+      "level": 0
+    },
+    "270": {
+      "owned": true,
+      "level": 0
+    },
+    "271": {
+      "owned": true,
+      "level": 0
+    },
+    "272": {
+      "owned": false,
+      "level": 0
+    },
+    "273": {
+      "owned": true,
+      "level": 0
+    },
+    "274": {
+      "owned": false,
+      "level": 0
+    },
+    "275": {
+      "owned": false,
+      "level": 0
+    },
+    "276": {
+      "owned": false,
+      "level": 0
+    },
+    "277": {
+      "owned": false,
+      "level": 0
+    },
+    "278": {
+      "owned": false,
+      "level": 0
+    },
+    "279": {
+      "owned": false,
+      "level": 0
+    },
+    "280": {
+      "owned": true,
+      "level": 0
+    },
+    "281": {
+      "owned": false,
+      "level": 0
+    },
+    "282": {
+      "owned": true,
+      "level": 0
+    },
+    "283": {
+      "owned": false,
+      "level": 0
+    },
+    "284": {
+      "owned": false,
+      "level": 0
+    },
+    "285": {
+      "owned": false,
+      "level": 0
+    },
+    "286": {
+      "owned": true,
+      "level": 0
+    },
+    "287": {
+      "owned": false,
+      "level": 0
+    },
+    "288": {
+      "owned": false,
+      "level": 0
+    },
+    "289": {
+      "owned": false,
+      "level": 0
+    },
+    "290": {
+      "owned": false,
+      "level": 0
+    },
+    "291": {
+      "owned": true,
+      "level": 0
+    },
+    "292": {
+      "owned": false,
+      "level": 0
+    },
+    "293": {
+      "owned": true,
+      "level": 0
+    },
+    "294": {
+      "owned": true,
+      "level": 0
+    },
+    "295": {
+      "owned": false,
+      "level": 0
+    },
+    "296": {
+      "owned": true,
+      "level": 0
+    },
+    "297": {
+      "owned": true,
+      "level": 0
+    },
+    "298": {
+      "owned": false,
+      "level": 0
+    },
+    "299": {
+      "owned": true,
+      "level": 0
+    },
+    "300": {
+      "owned": false,
+      "level": 0
+    },
+    "301": {
+      "owned": false,
+      "level": 0
+    },
+    "302": {
+      "owned": false,
+      "level": 0
+    },
+    "303": {
+      "owned": false,
+      "level": 0
+    },
+    "304": {
+      "owned": false,
+      "level": 0
+    },
+    "305": {
+      "owned": false,
+      "level": 0
+    },
+    "306": {
+      "owned": true,
+      "level": 0
+    },
+    "307": {
+      "owned": true,
+      "level": 0
+    },
+    "308": {
+      "owned": false,
+      "level": 0
+    },
+    "309": {
+      "owned": false,
+      "level": 0
+    },
+    "310": {
+      "owned": false,
+      "level": 0
+    },
+    "311": {
+      "owned": false,
+      "level": 0
+    },
+    "312": {
+      "owned": false,
+      "level": 0
+    },
+    "313": {
+      "owned": false,
+      "level": 0
+    },
+    "314": {
+      "owned": true,
+      "level": 0
+    },
+    "315": {
+      "owned": false,
+      "level": 0
+    },
+    "316": {
+      "owned": true,
+      "level": 0
+    },
+    "317": {
+      "owned": false,
+      "level": 0
+    },
+    "318": {
+      "owned": false,
+      "level": 0
+    },
+    "319": {
+      "owned": false,
+      "level": 0
+    },
+    "320": {
+      "owned": false,
+      "level": 0
+    },
+    "321": {
+      "owned": false,
+      "level": 0
+    },
+    "322": {
+      "owned": false,
+      "level": 0
+    },
+    "323": {
+      "owned": false,
+      "level": 0
+    },
+    "324": {
+      "owned": false,
+      "level": 0
+    },
+    "325": {
+      "owned": false,
+      "level": 0
+    },
+    "326": {
+      "owned": false,
+      "level": 0
+    },
+    "327": {
+      "owned": false,
+      "level": 0
+    },
+    "328": {
+      "owned": false,
+      "level": 0
+    },
+    "329": {
+      "owned": false,
+      "level": 0
+    },
+    "330": {
+      "owned": false,
+      "level": 0
+    },
+    "331": {
+      "owned": false,
+      "level": 0
+    },
+    "332": {
+      "owned": false,
+      "level": 0
+    },
+    "333": {
+      "owned": false,
+      "level": 0
+    },
+    "334": {
+      "owned": false,
+      "level": 0
+    },
+    "335": {
+      "owned": false,
+      "level": 0
+    },
+    "336": {
+      "owned": false,
+      "level": 0
+    },
+    "337": {
+      "owned": false,
+      "level": 0
+    },
+    "338": {
+      "owned": false,
+      "level": 0
+    },
+    "339": {
+      "owned": false,
+      "level": 0
+    },
+    "340": {
+      "owned": false,
+      "level": 0
+    },
+    "341": {
+      "owned": false,
+      "level": 0
+    },
+    "342": {
+      "owned": false,
+      "level": 0
+    },
+    "343": {
+      "owned": false,
+      "level": 0
+    },
+    "344": {
+      "owned": false,
+      "level": 0
+    }
+  }
+}
