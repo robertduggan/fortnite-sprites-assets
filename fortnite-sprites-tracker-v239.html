@@ -698,7 +698,7 @@ function b64utf8(str){
   return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,(_,p)=>String.fromCharCode('0x'+p)));
 }
 async function ghGetSha(path, token){
-  const res=await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}?ref=${GH_BRANCH}`,{
+  const res=await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/main/${path}?ref=${GH_BRANCH}`,{
     headers:{Authorization:'Bearer '+token, Accept:'application/vnd.github+json'}
   });
   if(res.status===404) return null;
@@ -713,7 +713,7 @@ async function saveProfileRemote(p){
   const putOnce = async (sha) => {
     const body={message:`Update ${p} sprite progress`, content:b64utf8(JSON.stringify(profileData[p],null,2)), branch:GH_BRANCH};
     if(sha) body.sha=sha;
-    return fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`,{
+    return fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/main/${path}`,{
       method:'PUT',
       headers:{Authorization:'Bearer '+token, Accept:'application/vnd.github+json','Content-Type':'application/json'},
       body:JSON.stringify(body)
