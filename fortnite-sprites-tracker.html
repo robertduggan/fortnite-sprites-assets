@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<!--
+  Fortnite Sprite Tracker — launcher
+  ----------------------------------
+  Put this file in the same folder as the tracker builds (the repo root, next to
+  fortnite-sprites-tracker-v249.html and the sprites/ folder). People always open:
+
+      https://robertduggan.github.io/fortnite-sprites-assets/fortnite-sprites-tracker.html
+      https://robertduggan.github.io/fortnite-sprites-assets/fortnite-sprites-tracker.html?me=rob
+
+  To switch everybody to a new build, change the ONE line marked "EDIT THIS LINE" below.
+  Everything after the "?" (like ?me=rob) is passed to the tracker untouched, because the
+  tracker is loaded into this same address instead of redirecting away from it.
+
+  Optional: add ?v=250 to preview a build without editing this file, e.g.
+      .../fortnite-sprites-tracker.html?v=250&me=rob
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fortnite Sprite Tracker</title>
+<style>
+  html,body{margin:0;height:100%;background:#0f1117;color:#aeb4c2;font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+  #msg{display:flex;height:100%;align-items:center;justify-content:center;text-align:center;padding:24px}
+  #msg div{max-width:34em}
+  b{color:#e6e9f2} a{color:#8f9cff} code{background:#1b1e29;padding:1px 6px;border-radius:4px}
+</style>
+</head>
+<body>
+<div id="msg"><div>Loading tracker…</div></div>
+<script>
+// Wrapped in a function so nothing here leaks into the tracker's own code.
+(async function () {
+
+  // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼  EDIT THIS LINE  ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+  var BUILD = 'fortnite-sprites-tracker-v249.html';
+  // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲  EDIT THIS LINE  ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+  var target = BUILD;
+  var v = new URLSearchParams(location.search).get('v');
+  if (v && /^\d{1,4}$/.test(v)) target = 'fortnite-sprites-tracker-v' + v + '.html'; // digits only
+
+  var box = document.querySelector('#msg div');
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function problem(text) {
+    box.innerHTML = '<b>Couldn’t load the tracker.</b><br>' + text +
+      '<br><br>The build file is named on the <code>BUILD</code> line near the top of this page.';
+  }
+
+  if (!target || target === location.pathname.split('/').pop()) {
+    problem('The build name points back at this launcher page (<code>' + esc(target) + '</code>).');
+    return;
+  }
+
+  var res;
+  try {
+    res = await fetch(target);
+  } catch (e) {
+    // Offline, or this page was opened straight from disk (file://), where browsers block fetch().
+    location.replace(target + location.search + location.hash);
+    return;
+  }
+  if (!res.ok) {
+    problem('<code>' + esc(target) + '</code> returned error ' + res.status +
+            ' — check the file name, and that it has been uploaded and published.');
+    return;
+  }
+
+  // Replace this page with the build. The address bar (and any ?me=rob) stays exactly as it was.
+  var html = await res.text();
+  document.open();
+  document.write(html);
+  document.close();
+})();
+</script>
+</body>
+</html>
