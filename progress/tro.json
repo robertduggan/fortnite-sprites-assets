@@ -691,7 +691,7 @@
       "level": 0
     },
     "255": {
-      "owned": false,
+      "owned": true,
       "level": 0
     },
     "256": {
