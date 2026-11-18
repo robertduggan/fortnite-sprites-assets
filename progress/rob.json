@@ -1259,6 +1259,34 @@
     "396": {
       "owned": true,
       "level": 0
+    },
+    "397": {
+      "owned": false,
+      "level": 0
+    },
+    "398": {
+      "owned": true,
+      "level": 5
+    },
+    "399": {
+      "owned": false,
+      "level": 0
+    },
+    "400": {
+      "owned": false,
+      "level": 0
+    },
+    "401": {
+      "owned": false,
+      "level": 0
+    },
+    "402": {
+      "owned": false,
+      "level": 0
+    },
+    "403": {
+      "owned": false,
+      "level": 0
     }
   }
 }
